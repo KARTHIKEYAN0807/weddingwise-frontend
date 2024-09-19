@@ -1,6 +1,5 @@
-// src/App.js
 import React, { useState, useEffect, useContext, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext'; 
 import NavigationBar from './components/Navbar';
 import Footer from './components/Footer';
@@ -33,7 +32,7 @@ function App() {
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 1500); // Reduce loading time for better UX
+        }, 1500); // Slight delay for smooth transitions
 
         return () => clearTimeout(timer);
     }, []);
@@ -54,7 +53,7 @@ function App() {
 }
 
 const AppContent = () => {
-    const { darkMode } = useContext(AppContext);
+    const { user, darkMode } = useContext(AppContext); // Destructured user and darkMode from context
 
     return (
         <div className={darkMode ? 'dark-mode' : ''}>
@@ -69,8 +68,8 @@ const AppContent = () => {
                             <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
                             <Route path="/vendors/:id" element={<ProtectedRoute><VendorDetails /></ProtectedRoute>} />
                             <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
-                            <Route path="/login" element={<Login />} />
-                            <Route path="/register" element={<Register />} />
+                            <Route path="/login" element={user ? <Navigate to="/user-account" /> : <Login />} />
+                            <Route path="/register" element={user ? <Navigate to="/user-account" /> : <Register />} />
                             <Route path="/contact" element={<Contact />} />
                             <Route path="/forgot-password" element={<ForgotPassword />} />
                             <Route path="/reset-password/:token" element={<ResetPassword />} />
