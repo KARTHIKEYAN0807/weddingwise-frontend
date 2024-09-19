@@ -21,6 +21,7 @@ const RegisterSchema = Yup.object().shape({
 const Register = () => {
     const navigate = useNavigate();
     const [serverError, setServerError] = React.useState('');
+    const [successMessage, setSuccessMessage] = React.useState(''); // To show a success message after registration
 
     return (
         <Container className="animate__animated animate__fadeInUp mt-5">
@@ -32,8 +33,9 @@ const Register = () => {
                     <Formik
                         initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
                         validationSchema={RegisterSchema}
-                        onSubmit={async (values, { setSubmitting }) => {
+                        onSubmit={async (values, { setSubmitting, resetForm }) => {
                             setServerError(''); // Reset server error
+                            setSuccessMessage(''); // Reset success message
                             try {
                                 console.log('Registering with values:', values);
 
@@ -46,7 +48,12 @@ const Register = () => {
                                 console.log('Server response:', response);
 
                                 if (response.status === 201) {
-                                    navigate('/login');
+                                    // Display success message and navigate to login
+                                    setSuccessMessage('Registration successful! Redirecting to login...');
+                                    resetForm();
+                                    setTimeout(() => {
+                                        navigate('/login');
+                                    }, 2000);
                                 }
                             } catch (error) {
                                 console.error('Registration error:', error);
@@ -67,6 +74,7 @@ const Register = () => {
                         {({ isSubmitting }) => (
                             <Form>
                                 {serverError && <Alert variant="danger">{serverError}</Alert>}
+                                {successMessage && <Alert variant="success">{successMessage}</Alert>}
                                 <div className="form-group">
                                     <label>Name</label>
                                     <Field name="name" type="text" className="form-control" />

@@ -15,6 +15,7 @@ const Login = () => {
     const { loginUser } = useContext(AppContext);
     const navigate = useNavigate();
     const [loginError, setLoginError] = useState('');
+    const [loginSuccess, setLoginSuccess] = useState(''); // Success message state
 
     return (
         <Container className="animate__animated animate__fadeInUp mt-5">
@@ -28,6 +29,7 @@ const Login = () => {
                         validationSchema={LoginSchema}
                         onSubmit={async (values, { setSubmitting, resetForm }) => {
                             setLoginError(''); // Clear previous errors
+                            setLoginSuccess(''); // Clear previous success messages
                             try {
                                 const trimmedValues = {
                                     email: values.email.trim(),
@@ -43,9 +45,12 @@ const Login = () => {
                                 const { token, userData } = response.data;
 
                                 if (token) {
-                                    loginUser(userData, token); // Only pass token
-                                    navigate('/user-account');
+                                    loginUser(userData, token); // Pass userData and token
+                                    setLoginSuccess('Login successful! Redirecting...');
                                     resetForm(); // Clear form fields after successful login
+                                    setTimeout(() => {
+                                        navigate('/user-account'); // Redirect to user account after success
+                                    }, 2000);
                                 } else {
                                     console.error('Token is missing in the response');
                                     setLoginError('Login failed. Please try again.');
@@ -65,6 +70,7 @@ const Login = () => {
                         {({ handleSubmit, isSubmitting }) => (
                             <Form onSubmit={handleSubmit}>
                                 {loginError && <Alert variant="danger">{loginError}</Alert>}
+                                {loginSuccess && <Alert variant="success">{loginSuccess}</Alert>}
                                 <div className="form-group">
                                     <label>Email address</label>
                                     <Field name="email" type="email" className="form-control" />
