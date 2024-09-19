@@ -1,0 +1,89 @@
+/* Global Styles */
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Dark Mode Styles */
+.dark-mode {
+  background-color: #343a40;
+  color: #f8f9fa;
+}
+
+.dark-mode .navbar, 
+.dark-mode .card {
+  background-color: #343a40;
+  color: #f8f9fa;
+}
+
+.dark-mode .btn-primary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.dark-mode .table {
+  color: #f8f9fa;
+}
+
+.dark-mode .modal-content {
+  background-color: #343a40;
+  color: #f8f9fa;
+}
+
+/* Card and Button Hover Effects */
+.card {
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.btn-primary {
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #495057;
+  transform: translateY(-2px);
+}
+
+/* Smooth Transitions for Dark Mode */
+body, .navbar, .card, .btn-primary, .table, .modal-content {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Home Page Specific Styles */
+.home-page, 
+.home-content {
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for dark mode */
+}
+
+.dark-mode .home-page, 
+.dark-mode .home-content {
+  background-color: #343a40; /* Dark background */
+  color: #f8f9fa; /* Light text color */
+}
+/* src/App.css or a dedicated CSS file */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+.loading-text {
+  font-size: 1.5rem;
+  color: #123abc;
+  opacity: 0;
+  animation: fadeInOut 1.5s infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
