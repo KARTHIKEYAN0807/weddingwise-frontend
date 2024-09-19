@@ -34,7 +34,7 @@ const Login = () => {
                                     password: values.password.trim(),
                                 };
 
-                                const response = await axios.post('http://localhost:5000/api/users/login', trimmedValues, {
+                                const response = await axios.post('https://weddingwisebooking.onrender.com/api/users/login', trimmedValues, {
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },

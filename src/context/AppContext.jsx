@@ -6,7 +6,7 @@ import LoadingScreen from '../components/LoadingScreen'; // Import the loading s
 // Create a context for the app
 export const AppContext = createContext();
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://weddingwisebooking.onrender.com';
 
 export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);

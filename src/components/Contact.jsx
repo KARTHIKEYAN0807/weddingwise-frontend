@@ -32,7 +32,7 @@ const Contact = () => {
               setIsLoading(true); // Start loading
               try {
                 // Send the form data to the backend
-                const response = await axios.post('http://localhost:5000/api/contact', values); // Corrected endpoint
+                const response = await axios.post('https://weddingwisebooking.onrender.com/api/contact', values); // Corrected endpoint
                 setStatusMessage({ type: 'success', text: response.data.msg });
                 resetForm();
               } catch (error) {
