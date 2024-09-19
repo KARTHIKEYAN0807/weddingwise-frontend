@@ -3,10 +3,10 @@ import { AppContext } from '../context/AppContext';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-    const { user } = useContext(AppContext);
-    const location = useLocation();
+    const { user } = useContext(AppContext); // Get the user from the context
+    const location = useLocation(); // Get the current location
 
-    // Log the user and token for debugging
+    // Log the user and token for debugging purposes
     console.log("ProtectedRoute: Current User:", user);
     console.log("ProtectedRoute: Attempting to access:", location.pathname);
     
@@ -14,12 +14,13 @@ const ProtectedRoute = ({ children }) => {
     const token = localStorage.getItem('authToken');
     console.log("Token in LocalStorage:", token);
 
-    // If the user is not logged in, redirect to the login page
+    // If no user or no token, redirect to the login page
     if (!user || !token) {
-        return <Navigate to="/login" state={{ from: location }} />;
+        console.log("User is not authenticated, redirecting to login");
+        return <Navigate to="/login" state={{ from: location }} />; // Pass the current location to login
     }
 
-    // If the user is logged in, render the children components
+    // If the user is authenticated, render the children components
     return children;
 };
 
