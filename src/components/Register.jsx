@@ -1,3 +1,4 @@
+// src/components/Register.jsx
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -93,6 +94,9 @@ const Register = () => {
                             </Form>
                         )}
                     </Formik>
+                    <div className="text-center mt-3">
+                        Already have an account? <Button variant="link" onClick={() => navigate('/login')}>Login</Button>
+                    </div>
                 </Col>
             </Row>
         </Container>
