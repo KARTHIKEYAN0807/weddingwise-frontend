@@ -1,4 +1,3 @@
-// src/components/Events.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { Card, Container, Row, Col, Button, Form, Alert } from 'react-bootstrap';
 import { AppContext } from '../context/AppContext';
@@ -52,11 +51,17 @@ const Events = () => {
         {filteredEvents.map((event) => (
           <Col md={6} lg={4} key={event._id} className="mb-4">
             <Card>
-              <Card.Img variant="top" src={event.img} alt={event.title || event.eventTitle} />
+              <Card.Img
+                variant="top"
+                src={event.img || '/images/default-event.jpg'} // Fallback image if no img is provided
+                alt={event.title || event.eventTitle}
+              />
               <Card.Body>
                 <Card.Title>{event.title || event.eventTitle}</Card.Title>
                 <Card.Text>{event.description || 'No description provided.'}</Card.Text>
-                <Button variant="primary" onClick={() => navigate(`/events/${event._id}`)}>Book Now</Button>
+                <Button variant="primary" onClick={() => navigate(`/events/${event._id}`)}>
+                  Book Now
+                </Button>
               </Card.Body>
             </Card>
           </Col>

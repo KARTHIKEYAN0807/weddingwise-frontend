@@ -59,11 +59,17 @@ const Vendors = () => {
         {filteredVendors.map((vendor) => (
           <Col md={6} lg={4} key={vendor._id} className="mb-4">
             <Card>
-              <Card.Img variant="top" src={vendor.img} alt={vendor.name} />
+              <Card.Img
+                variant="top"
+                src={vendor.img || '/images/default-vendor.jpg'} // Fallback image if no img is provided
+                alt={vendor.name}
+              />
               <Card.Body>
                 <Card.Title>{vendor.name}</Card.Title>
-                <Card.Text>{vendor.description}</Card.Text>
-                <Button variant="primary" onClick={() => handleBookVendor(vendor)}>Book Now</Button>
+                <Card.Text>{vendor.description || 'No description provided.'}</Card.Text>
+                <Button variant="primary" onClick={() => handleBookVendor(vendor)}>
+                  Book Now
+                </Button>
               </Card.Body>
             </Card>
           </Col>

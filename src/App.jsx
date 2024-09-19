@@ -63,20 +63,23 @@ const AppContent = () => {
                     <Suspense fallback={<LoadingScreen />}>
                         <Routes>
                             <Route path="/" element={<Home />} />
+                            {/* Protected Routes */}
                             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
                             <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
                             <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
                             <Route path="/vendors/:id" element={<ProtectedRoute><VendorDetails /></ProtectedRoute>} />
                             <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
+                            <Route path="/user-account" element={<ProtectedRoute><UserAccount /></ProtectedRoute>} />
+                            <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                            <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
+                            
+                            {/* Unprotected Routes */}
                             <Route path="/login" element={user ? <Navigate to="/user-account" /> : <Login />} />
                             <Route path="/register" element={user ? <Navigate to="/user-account" /> : <Register />} />
                             <Route path="/contact" element={<Contact />} />
                             <Route path="/forgot-password" element={<ForgotPassword />} />
                             <Route path="/reset-password/:token" element={<ResetPassword />} />
                             <Route path="/reset-password-request" element={<RequestResetPassword />} />
-                            <Route path="/user-account" element={<ProtectedRoute><UserAccount /></ProtectedRoute>} />
-                            <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-                            <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
                             <Route path="*" element={<NotFound />} />
                         </Routes>
                     </Suspense>
@@ -85,6 +88,6 @@ const AppContent = () => {
             </div>
         </div>
     );
-};  
+};
 
 export default App;

@@ -8,17 +8,25 @@ export const AppContext = createContext();
 
 const API_BASE_URL = 'https://weddingwisebooking.onrender.com';
 
+// Constants for localStorage keys
+const LOCAL_STORAGE_USER = 'currentUser';
+const LOCAL_STORAGE_TOKEN = 'authToken';
+const LOCAL_STORAGE_BOOKED_EVENTS = 'bookedEvents';
+const LOCAL_STORAGE_BOOKED_VENDORS = 'bookedVendors';
+const LOCAL_STORAGE_DARK_MODE = 'darkMode';
+
 export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [bookedEvents, setBookedEvents] = useState([]);
     const [bookedVendors, setBookedVendors] = useState([]);
-    const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+    const [darkMode, setDarkMode] = useState(() => localStorage.getItem(LOCAL_STORAGE_DARK_MODE) === 'true');
     const [loading, setLoading] = useState(false); // Loading state
 
     const navigate = useNavigate(); // Use navigate hook for redirection
 
+    // Store dark mode setting in localStorage whenever it changes
     useEffect(() => {
-        localStorage.setItem('darkMode', darkMode);
+        localStorage.setItem(LOCAL_STORAGE_DARK_MODE, darkMode);
     }, [darkMode]);
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
@@ -27,8 +35,8 @@ export const AppProvider = ({ children }) => {
     const loginUser = (userData, token) => {
         if (token) {
             setUser(userData);
-            localStorage.setItem('currentUser', JSON.stringify(userData));
-            localStorage.setItem('authToken', token);
+            localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(userData));
+            localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
             console.error('Invalid token');
@@ -39,20 +47,23 @@ export const AppProvider = ({ children }) => {
         setUser(null);
         setBookedEvents([]);
         setBookedVendors([]);
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('authToken');
+        localStorage.removeItem(LOCAL_STORAGE_USER);
+        localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+        localStorage.removeItem(LOCAL_STORAGE_BOOKED_EVENTS);
+        localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
         delete axios.defaults.headers.common['Authorization'];
         navigate('/login'); // Redirect to login on logout
     };
 
+    // Refresh token function to handle expired tokens
     const refreshAuthToken = async () => {
         try {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
             if (!token) throw new Error('No token found');
 
             const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, { token });
             const newToken = response.data.token;
-            localStorage.setItem('authToken', newToken);
+            localStorage.setItem(LOCAL_STORAGE_TOKEN, newToken);
             axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
             console.log('Token refreshed successfully');
             return newToken;
@@ -63,6 +74,7 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Intercept axios responses to handle expired tokens
     useEffect(() => {
         const interceptor = axios.interceptors.response.use(
             response => response,
@@ -86,10 +98,11 @@ export const AppProvider = ({ children }) => {
         );
 
         return () => {
-            axios.interceptors.response.eject(interceptor);
+            axios.interceptors.response.eject(interceptor); // Clean up the interceptor
         };
     }, []);
 
+    // Add new event booking
     const addEventBooking = (booking) => {
         if (!booking.eventTitle) {
             alert('Event title is required.');
@@ -98,13 +111,14 @@ export const AppProvider = ({ children }) => {
 
         const eventWithId = {
             ...booking,
-            _id: booking._id || `local-${Date.now()}-${Math.random()}`
+            _id: booking._id || `local-${Date.now()}-${Math.random()}` // Generate unique ID for local events
         };
         const updatedBookedEvents = [...bookedEvents, eventWithId];
         setBookedEvents(updatedBookedEvents);
-        localStorage.setItem('bookedEvents', JSON.stringify(updatedBookedEvents));
+        localStorage.setItem(LOCAL_STORAGE_BOOKED_EVENTS, JSON.stringify(updatedBookedEvents));
     };
 
+    // Add new vendor booking
     const addVendorBooking = (booking) => {
         if (!booking.vendorName || !booking.name || !booking.email || !booking.date) {
             alert('All fields are required for vendor booking.');
@@ -113,13 +127,14 @@ export const AppProvider = ({ children }) => {
 
         const vendorWithId = {
             ...booking,
-            _id: booking._id || `local-${Date.now()}-${Math.random()}`
+            _id: booking._id || `local-${Date.now()}-${Math.random()}` // Generate unique ID for local vendors
         };
         const updatedBookedVendors = [...bookedVendors, vendorWithId];
         setBookedVendors(updatedBookedVendors);
-        localStorage.setItem('bookedVendors', JSON.stringify(updatedBookedVendors));
+        localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
     };
 
+    // Delete event booking
     const deleteEventBooking = async (index) => {
         setLoading(true);
         try {
@@ -134,7 +149,7 @@ export const AppProvider = ({ children }) => {
 
             const updatedBookedEvents = bookedEvents.filter((_, i) => i !== index);
             setBookedEvents(updatedBookedEvents);
-            localStorage.setItem('bookedEvents', JSON.stringify(updatedBookedEvents));
+            localStorage.setItem(LOCAL_STORAGE_BOOKED_EVENTS, JSON.stringify(updatedBookedEvents));
         } catch (error) {
             console.error('Error deleting booking:', error.message || error.response?.data);
             alert('Error deleting booking. Please try again.');
@@ -143,6 +158,7 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Update event booking
     const updateEventBooking = async (index, updatedBooking) => {
         setLoading(true);
         try {
@@ -166,7 +182,7 @@ export const AppProvider = ({ children }) => {
                 i === index ? { ...booking, ...updatedBooking, _id: eventId } : booking
             );
             setBookedEvents(updatedBookedEvents);
-            localStorage.setItem('bookedEvents', JSON.stringify(updatedBookedEvents));
+            localStorage.setItem(LOCAL_STORAGE_BOOKED_EVENTS, JSON.stringify(updatedBookedEvents));
         } catch (error) {
             console.error('Error updating booking:', error.message || error.response?.data);
             alert('Error updating booking. Please try again.');
@@ -175,6 +191,7 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Delete vendor booking
     const deleteVendorBooking = async (index) => {
         setLoading(true);
         try {
@@ -189,7 +206,7 @@ export const AppProvider = ({ children }) => {
 
             const updatedBookedVendors = bookedVendors.filter((_, i) => i !== index);
             setBookedVendors(updatedBookedVendors);
-            localStorage.setItem('bookedVendors', JSON.stringify(updatedBookedVendors));
+            localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
         } catch (error) {
             console.error('Error deleting vendor booking:', error.message || error.response?.data);
             alert('Error deleting vendor booking. Please try again.');
@@ -198,6 +215,7 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Update vendor booking
     const updateVendorBooking = async (index, updatedBooking) => {
         setLoading(true);
         try {
@@ -228,7 +246,7 @@ export const AppProvider = ({ children }) => {
                 i === index ? { ...booking, ...updatedBooking, _id: vendorId } : booking
             );
             setBookedVendors(updatedBookedVendors);
-            localStorage.setItem('bookedVendors', JSON.stringify(updatedBookedVendors));
+            localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
         } catch (error) {
             console.error('Error updating vendor booking:', error.response?.data || error.message);
             alert('Error updating vendor booking. Please try again.');
@@ -237,22 +255,25 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Confirm bookings
     const confirmBookings = async () => {
         setLoading(true);
         try {
             // Refresh token before confirming bookings
             await refreshAuthToken();
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
             if (!token) {
                 throw new Error('Token has expired, please login again');
             }
 
+            // Confirm vendor bookings and send them to the server
             const vendorsToSave = bookedVendors.filter(vendor => vendor._id.startsWith('local-'));
             for (const vendor of vendorsToSave) {
                 const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, vendor);
                 vendor._id = response.data._id;
             }
 
+            // Confirm event bookings and navigate to booking confirmation page
             const response = await axios.post(`${API_BASE_URL}/api/bookings/confirm-booking`, {
                 bookedEvents,
                 bookedVendors,
@@ -265,8 +286,8 @@ export const AppProvider = ({ children }) => {
                 // Clear the local data
                 setBookedEvents([]);
                 setBookedVendors([]);
-                localStorage.removeItem('bookedEvents');
-                localStorage.removeItem('bookedVendors');
+                localStorage.removeItem(LOCAL_STORAGE_BOOKED_EVENTS);
+                localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
 
                 // Show success alert after navigating
                 setTimeout(() => {
@@ -286,13 +307,15 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Load user and bookings from local storage on component mount
     useEffect(() => {
-        const storedUser = localStorage.getItem('currentUser');
-        const token = localStorage.getItem('authToken');
-        const storedBookedEvents = localStorage.getItem('bookedEvents');
-        const storedBookedVendors = localStorage.getItem('bookedVendors');
+        const storedUser = localStorage.getItem(LOCAL_STORAGE_USER);
+        const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
+        const storedBookedEvents = localStorage.getItem(LOCAL_STORAGE_BOOKED_EVENTS);
+        const storedBookedVendors = localStorage.getItem(LOCAL_STORAGE_BOOKED_VENDORS);
 
-        if (storedUser && storedUser !== "undefined" && token && token !== "undefined") {
+        // Set user and token if they exist in local storage
+        if (storedUser && token) {
             try {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser);
@@ -301,33 +324,33 @@ export const AppProvider = ({ children }) => {
                 console.error('Error parsing stored user:', error);
                 logoutUser();
             }
-        } else {
-            logoutUser();
         }
 
-        if (storedBookedEvents && storedBookedEvents !== "undefined") {
+        // Load booked events from local storage
+        if (storedBookedEvents) {
             try {
                 const parsedBookedEvents = JSON.parse(storedBookedEvents).map(event => ({
                     ...event,
-                    _id: event._id || `local-${Date.now()}-${Math.random()}`
+                    _id: event._id || `local-${Date.now()}-${Math.random()}` // Ensure event has a unique ID
                 }));
                 setBookedEvents(parsedBookedEvents);
             } catch (error) {
                 console.error('Error parsing booked events:', error);
-                localStorage.removeItem('bookedEvents');
+                localStorage.removeItem(LOCAL_STORAGE_BOOKED_EVENTS);
             }
         }
 
-        if (storedBookedVendors && storedBookedVendors !== "undefined") {
+        // Load booked vendors from local storage
+        if (storedBookedVendors) {
             try {
                 const parsedBookedVendors = JSON.parse(storedBookedVendors).map(vendor => ({
                     ...vendor,
-                    _id: vendor._id || `local-${Date.now()}-${Math.random()}`
+                    _id: vendor._id || `local-${Date.now()}-${Math.random()}` // Ensure vendor has a unique ID
                 }));
                 setBookedVendors(parsedBookedVendors);
             } catch (error) {
                 console.error('Error parsing booked vendors:', error);
-                localStorage.removeItem('bookedVendors');
+                localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
             }
         }
     }, []);
