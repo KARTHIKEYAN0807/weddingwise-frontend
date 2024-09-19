@@ -53,7 +53,7 @@ function App() {
 }
 
 const AppContent = () => {
-    const { user, darkMode } = useContext(AppContext); // Get user and darkMode from context
+    const { user, darkMode } = useContext(AppContext); // Destructured user and darkMode from context
 
     return (
         <div className={darkMode ? 'dark-mode' : ''}>
@@ -63,7 +63,6 @@ const AppContent = () => {
                     <Suspense fallback={<LoadingScreen />}>
                         <Routes>
                             <Route path="/" element={<Home />} />
-                            
                             {/* Protected Routes */}
                             <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
                             <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
