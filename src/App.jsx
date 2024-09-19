@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AppProvider, AppContext } from './context/AppContext'; 
 import NavigationBar from './components/Navbar';
@@ -76,7 +76,6 @@ const AppContent = () => {
               <Route path="/reset-password-request" element={<RequestResetPassword />} />
               <Route path="/user-account" element={<ProtectedRoute><UserAccount /></ProtectedRoute>} />
               <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-              {/* Make sure this path matches the one used in navigate('/booking-confirmation') */}
               <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
