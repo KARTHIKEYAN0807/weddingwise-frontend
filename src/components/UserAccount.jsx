@@ -15,7 +15,7 @@ const UserAccount = () => {
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const [error, setError] = useState('');
 
-    // Debugging: Log user data
+    // Log user data for debugging
     console.log('User from context:', user);
 
     if (!user) {
