@@ -20,7 +20,7 @@ export const AppProvider = ({ children }) => {
     const [bookedEvents, setBookedEvents] = useState([]);
     const [bookedVendors, setBookedVendors] = useState([]);
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem(LOCAL_STORAGE_DARK_MODE) === 'true');
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(true); // Updated: Initialize as true for loading state
 
     const navigate = useNavigate(); // Use navigate hook for redirection
 
@@ -353,6 +353,8 @@ export const AppProvider = ({ children }) => {
                 localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
             }
         }
+
+        setLoading(false); // Stop loading after all data is loaded
     }, []);
 
     // Show loading screen if loading is true
