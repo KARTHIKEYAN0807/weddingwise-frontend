@@ -8,7 +8,7 @@ const UserAccount = () => {
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ title: '', name: '', email: '', guests: '' });
+    const [editEventData, setEditEventData] = useState({ eventTitle: '', name: '', email: '', guests: '' });
     const [editVendorData, setEditVendorData] = useState({ vendorName: '', name: '', email: '', date: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
@@ -32,7 +32,7 @@ const UserAccount = () => {
         const eventToEdit = bookedEvents[index];
         // Ensure eventTitle is populated correctly or set a default value
         setEditEventData({ 
-            title: eventToEdit.title || 'Untitled Event',
+            eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || '',
             email: eventToEdit.email || '',
             guests: eventToEdit.guests || '',
@@ -86,7 +86,7 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.title) { // Ensure title is always present
+            if (!editEventData.eventTitle) { // Ensure eventTitle is always present
                 setError('Event title is required.');
                 return;
             }
@@ -143,7 +143,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.title}</td>
+                                <td>{event.eventTitle}</td> {/* Ensure to display eventTitle */}
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -209,7 +209,7 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.title} // Auto-populated event title
+                                value={editEventData.eventTitle} // Auto-populated event title
                                 readOnly // Makes the title read-only
                             />
                         </Form.Group>
