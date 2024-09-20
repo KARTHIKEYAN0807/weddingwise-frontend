@@ -96,8 +96,21 @@ const UserAccount = () => {
         e.preventDefault();
         try {
             const { eventId, eventTitle, name, email, guests } = editEventData;
+            
+            // Validate required fields
             if (!eventId || !eventTitle || !name || !email || !guests) {
                 setError('All fields, including the event title, are required.');
+                return;
+            }
+
+            // Additional validation for event title and guests
+            if (eventTitle.trim().length === 0) {
+                setError('Event title cannot be empty.');
+                return;
+            }
+
+            if (parseInt(guests, 10) <= 0) {
+                setError('Guests must be a valid positive number.');
                 return;
             }
 
@@ -109,9 +122,11 @@ const UserAccount = () => {
                 guests: parseInt(guests, 10)
             };
 
+            // Update event booking
             await updateEventBooking(editingEventIndex, updatedData);
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
+            setError('');  // Clear error after success
         } catch (err) {
             setError('Error updating the event booking. Please try again.');
         }
@@ -122,6 +137,8 @@ const UserAccount = () => {
         e.preventDefault();
         try {
             const { vendorName, name, email, date } = editVendorData;
+
+            // Validate required fields
             if (!vendorName || !name || !email || !date) {
                 setError('All fields are required for the vendor.');
                 return;
@@ -129,9 +146,11 @@ const UserAccount = () => {
 
             const updatedData = { vendorName, name, email, date };
 
+            // Update vendor booking
             await updateVendorBooking(editingVendorIndex, updatedData);
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
+            setError('');  // Clear error after success
         } catch (err) {
             setError('Error updating the vendor booking. Please try again.');
         }
