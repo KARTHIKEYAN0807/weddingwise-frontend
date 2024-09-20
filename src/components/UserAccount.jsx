@@ -15,8 +15,6 @@ const UserAccount = () => {
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const [error, setError] = useState('');
 
-    console.log('User from context:', user);
-
     if (!user) {
         return (
             <Container className="mt-5">
@@ -27,6 +25,7 @@ const UserAccount = () => {
         );
     }
 
+    // Event Editing Functionality
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
         setEditEventData({
@@ -40,6 +39,7 @@ const UserAccount = () => {
         setShowEventModal(true);
     };
 
+    // Vendor Editing Functionality
     const handleVendorEdit = (index) => {
         const vendorToEdit = bookedVendors[index];
         setEditVendorData({
@@ -52,16 +52,19 @@ const UserAccount = () => {
         setShowVendorModal(true);
     };
 
+    // Event Deletion Functionality
     const handleEventDelete = (index) => {
         setEditingEventIndex(index);
         setShowDeleteModal(true);
     };
 
+    // Vendor Deletion Functionality
     const handleVendorDelete = (index) => {
         setEditingVendorIndex(index);
         setShowVendorDeleteModal(true);
     };
 
+    // Confirm Event Deletion
     const confirmEventDelete = async () => {
         try {
             await deleteEventBooking(editingEventIndex);
@@ -73,6 +76,7 @@ const UserAccount = () => {
         }
     };
 
+    // Confirm Vendor Deletion
     const confirmVendorDelete = async () => {
         try {
             await deleteVendorBooking(editingVendorIndex);
@@ -84,6 +88,7 @@ const UserAccount = () => {
         }
     };
 
+    // Save Event Changes
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
@@ -111,6 +116,7 @@ const UserAccount = () => {
         }
     };
 
+    // Save Vendor Changes
     const handleSaveVendorChanges = async (e) => {
         e.preventDefault();
         try {
