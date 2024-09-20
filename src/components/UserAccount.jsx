@@ -35,7 +35,7 @@ const UserAccount = () => {
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || '',
             email: eventToEdit.email || '',
-            guests: eventToEdit.guests || '',
+            guests: eventToEdit.guests || ''
         });
         setEditingEventIndex(index);
         setShowEventModal(true);
@@ -92,8 +92,8 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.eventTitle) {
-                setError('Event title is required.');
+            if (!editEventData.eventTitle || !editEventData.name || !editEventData.email || !editEventData.guests) {
+                setError('All fields are required for the event.');
                 return;
             }
 
@@ -113,7 +113,7 @@ const UserAccount = () => {
         e.preventDefault();
         try {
             if (!editVendorData.vendorName || !editVendorData.name || !editVendorData.email || !editVendorData.date) {
-                setError('All fields are required.');
+                setError('All fields are required for the vendor.');
                 return;
             }
 
