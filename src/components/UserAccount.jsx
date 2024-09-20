@@ -8,7 +8,7 @@ const UserAccount = () => {
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ eventTitle: '', name: '', email: '', guests: '' });
+    const [editEventData, setEditEventData] = useState({ eventId: '', eventTitle: '', name: '', email: '', guests: '' });
     const [editVendorData, setEditVendorData] = useState({ vendorName: '', name: '', email: '', date: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
@@ -33,6 +33,7 @@ const UserAccount = () => {
         const eventToEdit = bookedEvents[index];
         console.log('Event to Edit:', eventToEdit); // Log event for debugging
         setEditEventData({ 
+            eventId: eventToEdit._id || '', // Use eventId (_id from MongoDB)
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || '',
             email: eventToEdit.email || '',
@@ -94,14 +95,18 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.eventTitle || !editEventData.name || !editEventData.email || !editEventData.guests) {
+            const { eventId, name, email, guests } = editEventData;
+
+            if (!eventId || !name || !email || !guests) {
                 setError('All fields are required for the event.');
                 return;
             }
 
             const updatedData = {
-                ...editEventData,
-                guests: parseInt(editEventData.guests), // Convert guests to number
+                eventId, // Ensure to send eventId instead of eventTitle
+                name,
+                email,
+                guests: parseInt(guests, 10) // Convert guests to number
             };
 
             console.log('Updated Event Data:', updatedData); // Log the data being sent
@@ -218,7 +223,7 @@ const UserAccount = () => {
             </Button>
 
             {/* Modal for editing events */}
-            <Modal show={showEventModal} onHide={() => { setShowEventModal(false); setFeedbackMessage(''); }}>
+            <Modal show={showEventModal} onHide={() => { setShowEventModal(false); setFeedbackMessage(''); setError(''); }}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Event Booking</Modal.Title>
                 </Modal.Header>
@@ -267,7 +272,7 @@ const UserAccount = () => {
             </Modal>
 
             {/* Modal for editing vendors */}
-            <Modal show={showVendorModal} onHide={() => { setShowVendorModal(false); setFeedbackMessage(''); }}>
+            <Modal show={showVendorModal} onHide={() => { setShowVendorModal(false); setFeedbackMessage(''); setError(''); }}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Vendor Booking</Modal.Title>
                 </Modal.Header>
