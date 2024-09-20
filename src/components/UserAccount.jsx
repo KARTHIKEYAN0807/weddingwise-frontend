@@ -33,7 +33,6 @@ const UserAccount = () => {
         const eventToEdit = bookedEvents[index];
         console.log('Event to Edit:', eventToEdit); // Log event for debugging
 
-        // Set correct eventId from the bookedEvents array (_id from MongoDB)
         setEditEventData({ 
             eventId: eventToEdit._id || '', // Ensure correct MongoDB ObjectId is used as eventId
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
