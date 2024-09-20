@@ -71,7 +71,7 @@ const EventDetails = () => {
                                         try {
                                             // Add event booking to local state
                                             addEventBooking({
-                                                title: event.title,  // Submit the title field correctly
+                                                eventId: event._id,  // Send eventId instead of eventTitle
                                                 ...values,
                                             });
 
