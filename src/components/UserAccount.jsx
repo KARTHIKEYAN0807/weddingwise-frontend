@@ -8,14 +8,14 @@ const UserAccount = () => {
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ eventTitle: '', name: '', email: '', guests: '' });
+    const [editEventData, setEditEventData] = useState({ title: '', name: '', email: '', guests: '' });
     const [editVendorData, setEditVendorData] = useState({ vendorName: '', name: '', email: '', date: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const [error, setError] = useState('');
 
-    // Log user data
+    // Debugging: Log user data
     console.log('User from context:', user);
 
     if (!user) {
@@ -28,12 +28,11 @@ const UserAccount = () => {
         );
     }
 
-    // Edit event handler
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
-        // Ensure eventTitle is always populated, provide a default if empty
+        // Ensure eventTitle is populated correctly or set a default value
         setEditEventData({ 
-            eventTitle: eventToEdit.eventTitle || 'Untitled Event',
+            title: eventToEdit.title || 'Untitled Event',
             name: eventToEdit.name || '',
             email: eventToEdit.email || '',
             guests: eventToEdit.guests || '',
@@ -42,7 +41,6 @@ const UserAccount = () => {
         setShowEventModal(true);
     };
 
-    // Edit vendor handler
     const handleVendorEdit = (index) => {
         const vendorToEdit = bookedVendors[index];
         setEditVendorData({ 
@@ -55,19 +53,16 @@ const UserAccount = () => {
         setShowVendorModal(true);
     };
 
-    // Delete event handler
     const handleEventDelete = (index) => {
         setEditingEventIndex(index);
         setShowDeleteModal(true);
     };
 
-    // Delete vendor handler
     const handleVendorDelete = (index) => {
         setEditingVendorIndex(index);
         setShowVendorDeleteModal(true);
     };
 
-    // Confirm event deletion
     const confirmEventDelete = async () => {
         try {
             await deleteEventBooking(editingEventIndex);
@@ -78,7 +73,6 @@ const UserAccount = () => {
         }
     };
 
-    // Confirm vendor deletion
     const confirmVendorDelete = async () => {
         try {
             await deleteVendorBooking(editingVendorIndex);
@@ -89,11 +83,10 @@ const UserAccount = () => {
         }
     };
 
-    // Save event changes
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.eventTitle) {
+            if (!editEventData.title) { // Ensure title is always present
                 setError('Event title is required.');
                 return;
             }
@@ -109,7 +102,6 @@ const UserAccount = () => {
         }
     };
 
-    // Save vendor changes
     const handleSaveVendorChanges = async (e) => {
         e.preventDefault();
         try {
@@ -151,7 +143,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.eventTitle || 'Untitled Event'}</td> {/* Display eventTitle */}
+                                <td>{event.title}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -217,7 +209,7 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.eventTitle} // Auto-populated event title
+                                value={editEventData.title} // Auto-populated event title
                                 readOnly // Makes the title read-only
                             />
                         </Form.Group>
