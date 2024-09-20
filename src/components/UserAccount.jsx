@@ -10,7 +10,7 @@ const UserAccount = () => {
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ eventId: '', eventTitle: '', name: '', email: '', guests: '', date: '' });
+    const [editEventData, setEditEventData] = useState({ eventId: '', title: '', name: '', email: '', guests: '', date: '' });
     const [editVendorData, setEditVendorData] = useState({ vendorName: '', name: '', email: '', date: '', guests: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
@@ -33,7 +33,7 @@ const UserAccount = () => {
         const eventToEdit = bookedEvents[index];
         setEditEventData({
             eventId: eventToEdit._id || '',
-            eventTitle: eventToEdit.eventTitle || 'Untitled Event',
+            title: eventToEdit.title || 'Untitled Event',
             name: eventToEdit.name || user.name || '',
             email: eventToEdit.email || user.email || '',
             guests: eventToEdit.guests || '',
@@ -95,16 +95,16 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            const { eventId, eventTitle, name, email, guests, date } = editEventData;
+            const { eventId, title, name, email, guests, date } = editEventData;
             
             // Validate required fields
-            if (!eventId || !eventTitle || !name || !email || !guests || !date) {
+            if (!eventId || !title || !name || !email || !guests || !date) {
                 setError('All fields, including the event title, date, and guests, are required.');
                 return;
             }
 
             // Additional validation for event title and guests
-            if (eventTitle.trim().length === 0) {
+            if (title.trim().length === 0) {
                 setError('Event title cannot be empty.');
                 return;
             }
@@ -116,7 +116,7 @@ const UserAccount = () => {
 
             const updatedData = {
                 eventId,
-                eventTitle,
+                title,
                 name,
                 email,
                 guests: parseInt(guests, 10),
@@ -183,7 +183,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.eventTitle || 'Untitled Event'}</td>
+                                <td>{event.title || 'Untitled Event'}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -252,8 +252,8 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.eventTitle}
-                                onChange={(e) => setEditEventData({ ...editEventData, eventTitle: e.target.value })}
+                                value={editEventData.title}
+                                onChange={(e) => setEditEventData({ ...editEventData, title: e.target.value })}
                                 required
                             />
                         </Form.Group>
