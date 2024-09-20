@@ -29,14 +29,27 @@ const UserAccount = () => {
     }
 
     const handleEventEdit = (index) => {
+        const eventToEdit = bookedEvents[index];
+        // Ensure eventTitle is populated correctly or set a default value
+        setEditEventData({ 
+            title: eventToEdit.title || 'Untitled Event',
+            name: eventToEdit.name || '',
+            email: eventToEdit.email || '',
+            guests: eventToEdit.guests || '',
+        });
         setEditingEventIndex(index);
-        setEditEventData({ ...bookedEvents[index] });
         setShowEventModal(true);
     };
 
     const handleVendorEdit = (index) => {
+        const vendorToEdit = bookedVendors[index];
+        setEditVendorData({ 
+            vendorName: vendorToEdit.vendorName || '',
+            name: vendorToEdit.name || '',
+            email: vendorToEdit.email || '',
+            date: vendorToEdit.date || '',
+        });
         setEditingVendorIndex(index);
-        setEditVendorData({ ...bookedVendors[index] });
         setShowVendorModal(true);
     };
 
