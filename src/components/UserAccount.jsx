@@ -32,13 +32,16 @@ const UserAccount = () => {
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
         console.log('Event to Edit:', eventToEdit); // Log event for debugging
+
+        // Set correct eventId from the bookedEvents array (_id from MongoDB)
         setEditEventData({ 
-            eventId: eventToEdit._id || '', // Use eventId (_id from MongoDB)
+            eventId: eventToEdit._id || '', // Ensure correct MongoDB ObjectId is used as eventId
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || '',
             email: eventToEdit.email || '',
             guests: eventToEdit.guests || ''
         });
+
         setEditingEventIndex(index);
         setShowEventModal(true);
     };
@@ -97,14 +100,15 @@ const UserAccount = () => {
         try {
             const { eventId, eventTitle, name, email, guests } = editEventData;
 
+            // Ensure all fields are filled correctly
             if (!eventId || !eventTitle || !name || !email || !guests) {
                 setError('All fields, including the event title, are required for the event.');
                 return;
             }
 
             const updatedData = {
-                eventId, // Ensure to send eventId
-                eventTitle, // Ensure to send eventTitle
+                eventId, // Ensure correct MongoDB ObjectId (eventId) is sent
+                eventTitle, // Send eventTitle
                 name,
                 email,
                 guests: parseInt(guests, 10) // Convert guests to number
