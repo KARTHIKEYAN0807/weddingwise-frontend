@@ -27,27 +27,21 @@ const UserAccount = () => {
         );
     }
 
-    // Edit event handler
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
-        console.log('Event to Edit:', eventToEdit); // Log event for debugging
-
         setEditEventData({ 
-            eventId: eventToEdit._id || '', // Ensure correct MongoDB ObjectId is used as eventId
-            eventTitle: eventToEdit.title || 'Untitled Event', // Use event title (check your data structure)
+            eventId: eventToEdit._id || '',
+            eventTitle: eventToEdit.title || 'Untitled Event',
             name: eventToEdit.name || user.name || '',
             email: eventToEdit.email || user.email || '',
             guests: eventToEdit.guests || ''
         });
-
         setEditingEventIndex(index);
         setShowEventModal(true);
     };
 
-    // Edit vendor handler
     const handleVendorEdit = (index) => {
         const vendorToEdit = bookedVendors[index];
-        console.log('Vendor to Edit:', vendorToEdit); // Log vendor for debugging
         setEditVendorData({
             vendorName: vendorToEdit.vendorName || '',
             name: vendorToEdit.name || '',
@@ -58,19 +52,16 @@ const UserAccount = () => {
         setShowVendorModal(true);
     };
 
-    // Delete event handler
     const handleEventDelete = (index) => {
         setEditingEventIndex(index);
         setShowDeleteModal(true);
     };
 
-    // Delete vendor handler
     const handleVendorDelete = (index) => {
         setEditingVendorIndex(index);
         setShowVendorDeleteModal(true);
     };
 
-    // Confirm event deletion
     const confirmEventDelete = async () => {
         try {
             await deleteEventBooking(editingEventIndex);
@@ -81,7 +72,6 @@ const UserAccount = () => {
         }
     };
 
-    // Confirm vendor deletion
     const confirmVendorDelete = async () => {
         try {
             await deleteVendorBooking(editingVendorIndex);
@@ -92,42 +82,33 @@ const UserAccount = () => {
         }
     };
 
-    // Save event changes
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
             const { eventId, eventTitle, name, email, guests } = editEventData;
 
-            // Ensure all fields are filled correctly
             if (!eventId || !eventTitle || !name || !email || !guests) {
                 setError('All fields, including the event title, are required for the event.');
                 return;
             }
 
-            // Prepare updated data for API request
             const updatedData = {
-                eventId, // Ensure correct MongoDB ObjectId (eventId) is sent
-                eventTitle, // Send eventTitle
+                eventId,
+                eventTitle,
                 name,
                 email,
-                guests: parseInt(guests, 10) // Convert guests to number
+                guests: parseInt(guests, 10)
             };
 
-            console.log('Sending updated event data to backend:', updatedData);
-
-            // Call the API to update the booking
             await updateEventBooking(editingEventIndex, updatedData);
-
-            // Close the modal and set feedback message on success
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
         } catch (err) {
-            console.error('Error updating booking:', err.response ? err.response.data : err.message); // Log the error for debugging
+            console.error('Error updating booking:', err);
             setError('Error updating the event booking. Please try again.');
         }
     };
 
-    // Save vendor changes
     const handleSaveVendorChanges = async (e) => {
         e.preventDefault();
         try {
@@ -138,13 +119,11 @@ const UserAccount = () => {
 
             const updatedData = { ...editVendorData };
 
-            console.log('Updated Vendor Data:', updatedData); // Log the data being sent
-
             await updateVendorBooking(editingVendorIndex, updatedData);
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
         } catch (err) {
-            console.error('Error updating vendor booking:', err.response ? err.response.data : err.message); // Log error details
+            console.error('Error updating vendor booking:', err);
             setError('Error updating the vendor booking. Please try again.');
         }
     };
