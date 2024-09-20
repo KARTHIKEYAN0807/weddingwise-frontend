@@ -4,6 +4,8 @@ import { AppContext } from '../context/AppContext';
 
 const UserAccount = () => {
     const { user, bookedEvents, bookedVendors, deleteEventBooking, updateEventBooking, deleteVendorBooking, updateVendorBooking, confirmBookings, loading } = useContext(AppContext);
+    
+    // State management for editing events/vendors and modal visibility
     const [editingEventIndex, setEditingEventIndex] = useState(null);
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
@@ -17,6 +19,7 @@ const UserAccount = () => {
 
     console.log('User from context:', user);
 
+    // Redirect if not logged in
     if (!user) {
         return (
             <Container className="mt-5">
@@ -27,6 +30,7 @@ const UserAccount = () => {
         );
     }
 
+    // Handling the editing of an event
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
         setEditEventData({
@@ -40,6 +44,7 @@ const UserAccount = () => {
         setShowEventModal(true);
     };
 
+    // Handling the editing of a vendor
     const handleVendorEdit = (index) => {
         const vendorToEdit = bookedVendors[index];
         setEditVendorData({
@@ -52,45 +57,47 @@ const UserAccount = () => {
         setShowVendorModal(true);
     };
 
+    // Handling event deletion
     const handleEventDelete = (index) => {
         setEditingEventIndex(index);
         setShowDeleteModal(true);
     };
 
+    // Handling vendor deletion
     const handleVendorDelete = (index) => {
         setEditingVendorIndex(index);
         setShowVendorDeleteModal(true);
     };
 
+    // Confirm event deletion
     const confirmEventDelete = async () => {
         try {
             await deleteEventBooking(editingEventIndex);
             setShowDeleteModal(false);
             setFeedbackMessage('Event booking successfully deleted.');
         } catch (err) {
-            console.error('Error deleting the event booking:', err.response ? err.response.data : err.message);
             setError('Error deleting the event booking. Please try again.');
         }
     };
 
+    // Confirm vendor deletion
     const confirmVendorDelete = async () => {
         try {
             await deleteVendorBooking(editingVendorIndex);
             setShowVendorDeleteModal(false);
             setFeedbackMessage('Vendor booking successfully deleted.');
         } catch (err) {
-            console.error('Error deleting the vendor booking:', err.response ? err.response.data : err.message);
             setError('Error deleting the vendor booking. Please try again.');
         }
     };
 
+    // Save changes to an event booking
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
             const { eventId, eventTitle, name, email, guests } = editEventData;
-
             if (!eventId || !eventTitle || !name || !email || !guests) {
-                setError('All fields, including the event title, are required for the event.');
+                setError('All fields, including the event title, are required.');
                 return;
             }
 
@@ -102,32 +109,30 @@ const UserAccount = () => {
                 guests: parseInt(guests, 10)
             };
 
-            console.log('Updated Event Data:', updatedData);
-
             await updateEventBooking(editingEventIndex, updatedData);
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
         } catch (err) {
-            console.error('Error updating booking:', err.response ? err.response.data : err.message);
             setError('Error updating the event booking. Please try again.');
         }
     };
 
+    // Save changes to a vendor booking
     const handleSaveVendorChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editVendorData.vendorName || !editVendorData.name || !editVendorData.email || !editVendorData.date) {
+            const { vendorName, name, email, date } = editVendorData;
+            if (!vendorName || !name || !email || !date) {
                 setError('All fields are required for the vendor.');
                 return;
             }
 
-            const updatedData = { ...editVendorData };
+            const updatedData = { vendorName, name, email, date };
 
             await updateVendorBooking(editingVendorIndex, updatedData);
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
         } catch (err) {
-            console.error('Error updating vendor booking:', err.response ? err.response.data : err.message);
             setError('Error updating the vendor booking. Please try again.');
         }
     };
