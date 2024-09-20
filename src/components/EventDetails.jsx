@@ -1,7 +1,6 @@
-// src/components/EventDetails.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -40,8 +39,10 @@ const EventDetails = () => {
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
-                <div className="loading-container">
-                    <div className="loading-text">Loading...</div>
+                <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
+                    <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner>
                 </div>
             ) : (
                 event ? (
@@ -69,7 +70,7 @@ const EventDetails = () => {
                                         try {
                                             // Add event to user account (not confirming booking yet)
                                             addEventBooking({
-                                                eventTitle: event.title || 'Untitled Event', // Use eventTitle for consistency
+                                                eventTitle: event.title || 'Untitled Event',
                                                 event: event._id, // Include the event ID
                                                 img: event.img || '', 
                                                 description: event.description || 'No description provided.',
@@ -88,21 +89,21 @@ const EventDetails = () => {
                                 >
                                     {({ handleSubmit }) => (
                                         <Form onSubmit={handleSubmit}>
-                                            <div className="form-group">
-                                                <label>Name</label>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Name</Form.Label>
                                                 <Field name="name" type="text" className="form-control" />
                                                 <ErrorMessage name="name" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Email</label>
+                                            </Form.Group>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Email</Form.Label>
                                                 <Field name="email" type="email" className="form-control" />
                                                 <ErrorMessage name="email" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Number of Guests</label>
+                                            </Form.Group>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label>Number of Guests</Form.Label>
                                                 <Field name="guests" type="number" className="form-control" />
                                                 <ErrorMessage name="guests" component="div" className="text-danger" />
-                                            </div>
+                                            </Form.Group>
                                             <Button variant="primary" type="submit" className="w-100">
                                                 Add to Account
                                             </Button>
@@ -114,7 +115,7 @@ const EventDetails = () => {
                     </>
                 ) : (
                     <Alert variant="danger">
-                        Event not found
+                        Event not found.
                     </Alert>
                 )
             )}

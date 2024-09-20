@@ -29,7 +29,7 @@ const UserAccount = () => {
 
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
-        setEditEventData({ 
+        setEditEventData({
             eventId: eventToEdit._id || '',
             eventTitle: eventToEdit.title || 'Untitled Event',
             name: eventToEdit.name || user.name || '',
@@ -68,6 +68,7 @@ const UserAccount = () => {
             setShowDeleteModal(false);
             setFeedbackMessage('Event booking successfully deleted.');
         } catch (err) {
+            console.error('Error deleting the event booking:', err.response ? err.response.data : err.message);
             setError('Error deleting the event booking. Please try again.');
         }
     };
@@ -78,6 +79,7 @@ const UserAccount = () => {
             setShowVendorDeleteModal(false);
             setFeedbackMessage('Vendor booking successfully deleted.');
         } catch (err) {
+            console.error('Error deleting the vendor booking:', err.response ? err.response.data : err.message);
             setError('Error deleting the vendor booking. Please try again.');
         }
     };
@@ -104,7 +106,7 @@ const UserAccount = () => {
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
         } catch (err) {
-            console.error('Error updating booking:', err);
+            console.error('Error updating booking:', err.response ? err.response.data : err.message);
             setError('Error updating the event booking. Please try again.');
         }
     };
@@ -123,7 +125,7 @@ const UserAccount = () => {
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
         } catch (err) {
-            console.error('Error updating vendor booking:', err);
+            console.error('Error updating vendor booking:', err.response ? err.response.data : err.message);
             setError('Error updating the vendor booking. Please try again.');
         }
     };
