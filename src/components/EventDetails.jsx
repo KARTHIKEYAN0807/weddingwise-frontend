@@ -34,6 +34,7 @@ const EventDetails = () => {
         name: Yup.string().required('Name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required'),
+        guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
     });
 
     return (
@@ -48,8 +49,9 @@ const EventDetails = () => {
                         <Row>
                             <Col md={8} className="mx-auto">
                                 <h2>{event.title}</h2>
-                                {/* Remove or comment out the image element */}
-                                {/* <img src={event.img} alt={event.title} className="img-fluid mb-4" /> */}
+                                {event.img && (
+                                    <img src={event.img} alt={event.title} className="img-fluid mb-4" />
+                                )}
                                 <p>{event.description}</p>
                                 <h4>Book This Event</h4>
                                 {showSuccess && (
@@ -63,7 +65,7 @@ const EventDetails = () => {
                                     </Alert>
                                 )}
                                 <Formik
-                                    initialValues={{ name: '', email: '', date: '' }}
+                                    initialValues={{ name: '', email: '', date: '', guests: '' }}
                                     validationSchema={BookingSchema}
                                     onSubmit={(values, { resetForm }) => {
                                         try {
@@ -102,6 +104,11 @@ const EventDetails = () => {
                                                 <label>Date of Event</label>
                                                 <Field name="date" type="date" className="form-control" />
                                                 <ErrorMessage name="date" component="div" className="text-danger" />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Number of Guests</label>
+                                                <Field name="guests" type="number" className="form-control" />
+                                                <ErrorMessage name="guests" component="div" className="text-danger" />
                                             </div>
                                             <Button variant="primary" type="submit" className="w-100">
                                                 Book Now
