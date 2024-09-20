@@ -31,7 +31,6 @@ const UserAccount = () => {
     // Edit event handler
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
-        // Ensure eventTitle is always populated, provide a default if empty
         setEditEventData({ 
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || '',
