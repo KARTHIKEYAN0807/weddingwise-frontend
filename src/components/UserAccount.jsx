@@ -8,7 +8,7 @@ const UserAccount = () => {
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ title: '', name: '', email: '', guests: '' }); // Updated to use `title`
+    const [editEventData, setEditEventData] = useState({ title: '', name: '', email: '', guests: '' });
     const [editVendorData, setEditVendorData] = useState({ vendorName: '', name: '', email: '', date: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
@@ -73,7 +73,7 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.title) { // Use `title` now
+            if (!editEventData.title) { // Ensure title is always present
                 setError('Event title is required.');
                 return;
             }
@@ -130,7 +130,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.title}</td> {/* Updated to use `title` */}
+                                <td>{event.title}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -196,9 +196,8 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.title}
-                                onChange={(e) => setEditEventData({ ...editEventData, title: e.target.value })} // Changed to `title`
-                                required
+                                value={editEventData.title} // Auto-populated event title
+                                readOnly // Makes the title read-only
                             />
                         </Form.Group>
                         <Form.Group controlId="formName" className="mt-2">
