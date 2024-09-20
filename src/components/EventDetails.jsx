@@ -19,7 +19,7 @@ const EventDetails = () => {
         const fetchEvent = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/events/${id}`);
-                setEvent(response.data); // Ensure this fetches the 'title' from backend
+                setEvent(response.data);  // Ensure the event data contains 'title'
             } catch (error) {
                 console.error('Error fetching event:', error);
                 setErrorMessage('Event not found.');
@@ -48,7 +48,7 @@ const EventDetails = () => {
                     <>
                         <Row>
                             <Col md={8} className="mx-auto">
-                                <h2>{event.title}</h2>
+                                <h2>{event.title}</h2> {/* Ensure 'title' is displayed */}
                                 {event.img && (
                                     <img src={event.img} alt={event.title} className="img-fluid mb-4" />
                                 )}
@@ -69,9 +69,9 @@ const EventDetails = () => {
                                     validationSchema={BookingSchema}
                                     onSubmit={(values, { resetForm }) => {
                                         try {
-                                            // Make sure to pass 'title' as it's used by backend, not 'eventTitle'
+                                            // Add event booking with correct 'title' field
                                             addEventBooking({
-                                                title: event.title,  // Ensure we're using 'title'
+                                                title: event.title,  // Make sure we're sending 'title'
                                                 ...values,
                                             });
 
