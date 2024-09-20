@@ -15,7 +15,7 @@ const UserAccount = () => {
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const [error, setError] = useState('');
 
-    // Log user data
+    // Log user data for debugging
     console.log('User from context:', user);
 
     if (!user) {
@@ -31,6 +31,7 @@ const UserAccount = () => {
     // Edit event handler
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
+        console.log('Event to Edit:', eventToEdit); // Log event for debugging
         setEditEventData({ 
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || '',
@@ -44,6 +45,7 @@ const UserAccount = () => {
     // Edit vendor handler
     const handleVendorEdit = (index) => {
         const vendorToEdit = bookedVendors[index];
+        console.log('Vendor to Edit:', vendorToEdit); // Log vendor for debugging
         setEditVendorData({ 
             vendorName: vendorToEdit.vendorName || '',
             name: vendorToEdit.name || '',
@@ -97,10 +99,14 @@ const UserAccount = () => {
                 return;
             }
 
-            await updateEventBooking(editingEventIndex, {
+            const updatedData = {
                 ...editEventData,
                 guests: parseInt(editEventData.guests), // Convert guests to number
-            });
+            };
+
+            console.log('Updated Event Data:', updatedData); // Log the data being sent
+
+            await updateEventBooking(editingEventIndex, updatedData);
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
         } catch (err) {
@@ -117,7 +123,13 @@ const UserAccount = () => {
                 return;
             }
 
-            await updateVendorBooking(editingVendorIndex, editVendorData);
+            const updatedData = {
+                ...editVendorData,
+            };
+
+            console.log('Updated Vendor Data:', updatedData); // Log the data being sent
+
+            await updateVendorBooking(editingVendorIndex, updatedData);
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
         } catch (err) {
@@ -150,7 +162,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.eventTitle || 'Untitled Event'}</td> {/* Display eventTitle */}
+                                <td>{event.eventTitle || 'Untitled Event'}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -216,8 +228,8 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.eventTitle} // Auto-populated event title
-                                readOnly // Makes the title read-only
+                                value={editEventData.eventTitle}
+                                readOnly
                             />
                         </Form.Group>
                         <Form.Group controlId="formName" className="mt-2">
