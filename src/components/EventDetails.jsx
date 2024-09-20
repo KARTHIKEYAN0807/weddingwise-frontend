@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -11,8 +11,8 @@ const EventDetails = () => {
     const { addEventBooking } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(true);
     const [event, setEvent] = useState(null);
 
     useEffect(() => {
@@ -33,16 +33,14 @@ const EventDetails = () => {
     const BookingSchema = Yup.object().shape({
         name: Yup.string().required('Name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
-        guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
+        date: Yup.date().required('Date is required'),
     });
 
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
-                <div className="d-flex justify-content-center align-items-center" style={{ height: '50vh' }}>
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
+                <div className="loading-container">
+                    <div className="loading-text">Loading...</div>
                 </div>
             ) : (
                 event ? (
@@ -50,12 +48,13 @@ const EventDetails = () => {
                         <Row>
                             <Col md={8} className="mx-auto">
                                 <h2>{event.title}</h2>
-                                {event.img && <img src={event.img} alt={event.title} className="img-fluid mb-4" />}
+                                {/* Remove or comment out the image element */}
+                                {/* <img src={event.img} alt={event.title} className="img-fluid mb-4" /> */}
                                 <p>{event.description}</p>
-                                <h4>Add to Your Account</h4>
+                                <h4>Book This Event</h4>
                                 {showSuccess && (
                                     <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                                        Event added to your account! Redirecting to your account...
+                                        Event booked successfully! Redirecting to your account...
                                     </Alert>
                                 )}
                                 {errorMessage && (
@@ -64,48 +63,48 @@ const EventDetails = () => {
                                     </Alert>
                                 )}
                                 <Formik
-                                    initialValues={{ name: '', email: '', guests: '' }}
+                                    initialValues={{ name: '', email: '', date: '' }}
                                     validationSchema={BookingSchema}
-                                    onSubmit={async (values, { resetForm }) => {
+                                    onSubmit={(values, { resetForm }) => {
                                         try {
-                                            // Add event to user account (not confirming booking yet)
+                                            // Add event booking to local state
                                             addEventBooking({
-                                                eventTitle: event.title || 'Untitled Event',
-                                                event: event._id, // Include the event ID
-                                                img: event.img || '', 
-                                                description: event.description || 'No description provided.',
+                                                eventTitle: event.title,
                                                 ...values,
                                             });
+
                                             setShowSuccess(true);
+
+                                            // Redirect to user account page after a short delay
                                             setTimeout(() => {
                                                 navigate('/user-account');
                                             }, 2000);
                                             resetForm();
                                         } catch (error) {
-                                            console.error('Error adding event to account:', error.response?.data || error.message);
-                                            setErrorMessage('Error adding event to account. Please try again.');
+                                            console.error('Error booking event:', error);
+                                            setErrorMessage('Error booking event. Please try again.');
                                         }
                                     }}
                                 >
                                     {({ handleSubmit }) => (
                                         <Form onSubmit={handleSubmit}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Name</Form.Label>
+                                            <div className="form-group">
+                                                <label>Name</label>
                                                 <Field name="name" type="text" className="form-control" />
                                                 <ErrorMessage name="name" component="div" className="text-danger" />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Email</Form.Label>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Email</label>
                                                 <Field name="email" type="email" className="form-control" />
                                                 <ErrorMessage name="email" component="div" className="text-danger" />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Number of Guests</Form.Label>
-                                                <Field name="guests" type="number" className="form-control" />
-                                                <ErrorMessage name="guests" component="div" className="text-danger" />
-                                            </Form.Group>
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Date of Event</label>
+                                                <Field name="date" type="date" className="form-control" />
+                                                <ErrorMessage name="date" component="div" className="text-danger" />
+                                            </div>
                                             <Button variant="primary" type="submit" className="w-100">
-                                                Add to Account
+                                                Book Now
                                             </Button>
                                         </Form>
                                     )}

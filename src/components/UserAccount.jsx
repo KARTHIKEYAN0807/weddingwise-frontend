@@ -17,8 +17,6 @@ const UserAccount = () => {
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const [error, setError] = useState('');
 
-    console.log('User from context:', user);
-
     // Redirect if not logged in
     if (!user) {
         return (
