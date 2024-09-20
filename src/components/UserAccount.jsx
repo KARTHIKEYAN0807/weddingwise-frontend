@@ -31,7 +31,7 @@ const UserAccount = () => {
         const eventToEdit = bookedEvents[index];
         setEditEventData({
             eventId: eventToEdit._id || '',
-            eventTitle: eventToEdit.title || 'Untitled Event',
+            eventTitle: eventToEdit.eventTitle || 'Untitled Event',
             name: eventToEdit.name || user.name || '',
             email: eventToEdit.email || user.email || '',
             guests: eventToEdit.guests || ''
@@ -96,13 +96,13 @@ const UserAccount = () => {
 
             const updatedData = {
                 eventId,
-                eventTitle, // Ensure this is passed to the backend
+                eventTitle,
                 name,
                 email,
                 guests: parseInt(guests, 10)
             };
 
-            console.log('Updated Event Data:', updatedData); // For debugging
+            console.log('Updated Event Data:', updatedData);
 
             await updateEventBooking(editingEventIndex, updatedData);
             setShowEventModal(false);
@@ -157,7 +157,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.title || 'Untitled Event'}</td>
+                                <td>{event.eventTitle || 'Untitled Event'}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
