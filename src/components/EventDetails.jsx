@@ -67,11 +67,11 @@ const EventDetails = () => {
                                 <Formik
                                     initialValues={{ name: '', email: '', date: '', guests: '' }}
                                     validationSchema={BookingSchema}
-                                    onSubmit={async (values, { resetForm }) => {
+                                    onSubmit={(values, { resetForm }) => {
                                         try {
                                             // Add event booking to local state
-                                            await addEventBooking({
-                                                title: event.title,  // Updated to match the backend schema
+                                            addEventBooking({
+                                                title: event.title,  // Ensure we're using 'title' here
                                                 ...values,
                                             });
 
