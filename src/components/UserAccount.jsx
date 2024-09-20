@@ -95,15 +95,16 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            const { eventId, name, email, guests } = editEventData;
+            const { eventId, eventTitle, name, email, guests } = editEventData;
 
-            if (!eventId || !name || !email || !guests) {
-                setError('All fields are required for the event.');
+            if (!eventId || !eventTitle || !name || !email || !guests) {
+                setError('All fields, including the event title, are required for the event.');
                 return;
             }
 
             const updatedData = {
-                eventId, // Ensure to send eventId instead of eventTitle
+                eventId, // Ensure to send eventId
+                eventTitle, // Ensure to send eventTitle
                 name,
                 email,
                 guests: parseInt(guests, 10) // Convert guests to number
@@ -234,7 +235,8 @@ const UserAccount = () => {
                             <Form.Control
                                 type="text"
                                 value={editEventData.eventTitle}
-                                readOnly
+                                onChange={(e) => setEditEventData({ ...editEventData, eventTitle: e.target.value })}
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="formName" className="mt-2">
