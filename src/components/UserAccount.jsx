@@ -15,7 +15,6 @@ const UserAccount = () => {
     const [feedbackMessage, setFeedbackMessage] = useState('');
     const [error, setError] = useState('');
 
-    // Log user data for debugging
     console.log('User from context:', user);
 
     if (!user) {
@@ -35,9 +34,9 @@ const UserAccount = () => {
 
         setEditEventData({ 
             eventId: eventToEdit._id || '', // Ensure correct MongoDB ObjectId is used as eventId
-            eventTitle: eventToEdit.eventTitle || 'Untitled Event',
-            name: eventToEdit.name || '',
-            email: eventToEdit.email || '',
+            eventTitle: eventToEdit.title || 'Untitled Event', // Use event title (check your data structure)
+            name: eventToEdit.name || user.name || '',
+            email: eventToEdit.email || user.email || '',
             guests: eventToEdit.guests || ''
         });
 
@@ -49,7 +48,7 @@ const UserAccount = () => {
     const handleVendorEdit = (index) => {
         const vendorToEdit = bookedVendors[index];
         console.log('Vendor to Edit:', vendorToEdit); // Log vendor for debugging
-        setEditVendorData({ 
+        setEditVendorData({
             vendorName: vendorToEdit.vendorName || '',
             name: vendorToEdit.name || '',
             email: vendorToEdit.email || '',
@@ -114,7 +113,6 @@ const UserAccount = () => {
                 guests: parseInt(guests, 10) // Convert guests to number
             };
 
-            // Log the updated data before sending
             console.log('Sending updated event data to backend:', updatedData);
 
             // Call the API to update the booking
@@ -138,9 +136,7 @@ const UserAccount = () => {
                 return;
             }
 
-            const updatedData = {
-                ...editVendorData,
-            };
+            const updatedData = { ...editVendorData };
 
             console.log('Updated Vendor Data:', updatedData); // Log the data being sent
 
@@ -178,7 +174,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.eventTitle || 'Untitled Event'}</td>
+                                <td>{event.title || 'Untitled Event'}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
