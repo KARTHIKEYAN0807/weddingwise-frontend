@@ -19,7 +19,7 @@ const EventDetails = () => {
         const fetchEvent = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/events/${id}`);
-                setEvent(response.data);
+                setEvent(response.data); // Ensure this fetches the 'title' from backend
             } catch (error) {
                 console.error('Error fetching event:', error);
                 setErrorMessage('Event not found.');
@@ -69,9 +69,9 @@ const EventDetails = () => {
                                     validationSchema={BookingSchema}
                                     onSubmit={(values, { resetForm }) => {
                                         try {
-                                            // Add event booking to local state
+                                            // Make sure to pass 'title' as it's used by backend, not 'eventTitle'
                                             addEventBooking({
-                                                title: event.title,  // Ensure we're using 'title' here
+                                                title: event.title,  // Ensure we're using 'title'
                                                 ...values,
                                             });
 
