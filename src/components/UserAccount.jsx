@@ -32,8 +32,6 @@ const UserAccount = () => {
     const handleEventEdit = (index) => {
         const eventToEdit = bookedEvents[index];
         console.log('Event to Edit:', eventToEdit); // Log event for debugging
-
-        // Set correct eventId from the bookedEvents array (_id from MongoDB)
         setEditEventData({ 
             eventId: eventToEdit._id || '', // Ensure correct MongoDB ObjectId is used as eventId
             eventTitle: eventToEdit.eventTitle || 'Untitled Event',
@@ -41,7 +39,6 @@ const UserAccount = () => {
             email: eventToEdit.email || '',
             guests: eventToEdit.guests || ''
         });
-
         setEditingEventIndex(index);
         setShowEventModal(true);
     };
@@ -106,6 +103,7 @@ const UserAccount = () => {
                 return;
             }
 
+            // Prepare updated data for API request
             const updatedData = {
                 eventId, // Ensure correct MongoDB ObjectId (eventId) is sent
                 eventTitle, // Send eventTitle
@@ -114,12 +112,17 @@ const UserAccount = () => {
                 guests: parseInt(guests, 10) // Convert guests to number
             };
 
-            console.log('Updated Event Data:', updatedData); // Log the data being sent
+            // Log the updated data before sending
+            console.log('Sending updated event data to backend:', updatedData);
 
+            // Call the API to update the booking
             await updateEventBooking(editingEventIndex, updatedData);
+
+            // Close the modal and set feedback message on success
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
         } catch (err) {
+            console.error('Error updating booking:', err.response ? err.response.data : err.message); // Log the error for debugging
             setError('Error updating the event booking. Please try again.');
         }
     };
@@ -143,6 +146,7 @@ const UserAccount = () => {
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
         } catch (err) {
+            console.error('Error updating vendor booking:', err.response ? err.response.data : err.message); // Log error details
             setError('Error updating the vendor booking. Please try again.');
         }
     };
