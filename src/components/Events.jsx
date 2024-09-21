@@ -28,7 +28,7 @@ const Events = () => {
 
   // Filter events based on the search term
   const filteredEvents = events.filter(event =>
-    (event.title || event.eventTitle || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (event.name || '').toLowerCase().includes(searchTerm.toLowerCase()) // Use event.name instead of title or eventTitle
   );
 
   const handleBookEvent = (event) => {
@@ -63,10 +63,10 @@ const Events = () => {
               <Card.Img
                 variant="top"
                 src={event.img || '/images/default-event.jpg'} // Fallback image if no img is provided
-                alt={event.title || event.eventTitle}
+                alt={event.name} // Updated to use event.name
               />
               <Card.Body>
-                <Card.Title>{event.title || event.eventTitle}</Card.Title>
+                <Card.Title>{event.name}</Card.Title> {/* Updated to use event.name */}
                 <Card.Text>{event.description || 'No description provided.'}</Card.Text>
                 <Button variant="primary" onClick={() => handleBookEvent(event)}>
                   Book Now
