@@ -122,6 +122,28 @@ const UserAccount = () => {
         }
     };
 
+    // Confirm event deletion
+    const confirmEventDelete = async () => {
+        try {
+            await deleteEventBooking(editingEventIndex);
+            setShowDeleteModal(false);
+            setFeedbackMessage('Event booking successfully deleted.');
+        } catch (err) {
+            setError('Error deleting the event booking. Please try again.');
+        }
+    };
+
+    // Confirm vendor deletion
+    const confirmVendorDelete = async () => {
+        try {
+            await deleteVendorBooking(editingVendorIndex);
+            setShowVendorDeleteModal(false);
+            setFeedbackMessage('Vendor booking successfully deleted.');
+        } catch (err) {
+            setError('Error deleting the vendor booking. Please try again.');
+        }
+    };
+
     return (
         <Container className="animate__animated animate__fadeInUp mt-5">
             <h1 className="text-center mb-4">Welcome, {user.name}</h1>
@@ -155,7 +177,7 @@ const UserAccount = () => {
                                 <td>{new Date(event.date).toLocaleDateString()}</td>
                                 <td>
                                     <Button variant="warning" size="sm" onClick={() => handleEventEdit(index)}>Edit</Button>{' '}
-                                    <Button variant="danger" size="sm" onClick={() => handleEventDelete(index)}>Delete</Button>
+                                    <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>Delete</Button>
                                 </td>
                             </tr>
                         ))}
@@ -189,7 +211,7 @@ const UserAccount = () => {
                                 <td>{new Date(vendor.date).toLocaleDateString()}</td>
                                 <td>
                                     <Button variant="warning" size="sm" onClick={() => handleVendorEdit(index)}>Edit</Button>{' '}
-                                    <Button variant="danger" size="sm" onClick={() => handleVendorDelete(index)}>Delete</Button>
+                                    <Button variant="danger" size="sm" onClick={() => setShowVendorDeleteModal(true)}>Delete</Button>
                                 </td>
                             </tr>
                         ))}
