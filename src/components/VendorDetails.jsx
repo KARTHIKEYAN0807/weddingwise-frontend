@@ -8,7 +8,7 @@ import { AppContext } from '../context/AppContext';
 
 const VendorDetails = () => {
     const { id } = useParams();
-    const { user, addVendorBooking } = useContext(AppContext); // Ensure the user info is accessible
+    const { user, addVendorBooking } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -30,7 +30,7 @@ const VendorDetails = () => {
         fetchVendor();
     }, [id]);
 
-    // Yup schema updated to include userName
+    // Updated Yup validation schema
     const BookingSchema = Yup.object().shape({
         vendorName: Yup.string().required('Vendor name is required'),
         userName: Yup.string().required('Your name is required'),
@@ -69,8 +69,8 @@ const VendorDetails = () => {
                                 <Formik
                                     initialValues={{
                                         vendorName: vendor.name || 'Untitled Vendor',
-                                        userName: user?.name || '',
-                                        email: user?.email || '',
+                                        userName: user?.name || '', // Auto-fill user's name
+                                        email: user?.email || '', // Auto-fill user's email
                                         date: '',
                                         guests: ''
                                     }}
@@ -133,9 +133,7 @@ const VendorDetails = () => {
                         </Row>
                     </>
                 ) : (
-                    <Alert variant="danger">
-                        Vendor not found.
-                    </Alert>
+                    <Alert variant="danger">Vendor not found.</Alert>
                 )
             )}
         </Container>

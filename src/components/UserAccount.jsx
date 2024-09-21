@@ -171,7 +171,7 @@ const UserAccount = () => {
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
                                 <td>{event.name || 'Untitled Event'}</td>
-                                <td>{event.userName}</td> {/* Now showing user's name */}
+                                <td>{event.userName}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
                                 <td>{new Date(event.date).toLocaleDateString()}</td>
@@ -205,7 +205,7 @@ const UserAccount = () => {
                         {bookedVendors.map((vendor, index) => (
                             <tr key={`vendor-${index}`}>
                                 <td>{vendor.vendorName}</td>
-                                <td>{vendor.userName}</td> {/* Now showing user's name */}
+                                <td>{vendor.userName}</td>
                                 <td>{vendor.email}</td>
                                 <td>{vendor.guests}</td>
                                 <td>{new Date(vendor.date).toLocaleDateString()}</td>
