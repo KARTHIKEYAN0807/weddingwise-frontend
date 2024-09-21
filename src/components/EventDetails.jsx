@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -14,6 +14,7 @@ const EventDetails = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [event, setEvent] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -38,6 +39,7 @@ const EventDetails = () => {
     });
 
     const handleBookingSubmit = async (values, resetForm) => {
+        setSubmitting(true);
         try {
             await addEventBooking({
                 eventId: event._id,
@@ -52,13 +54,16 @@ const EventDetails = () => {
         } catch (error) {
             console.error('Error booking event:', error);
             setErrorMessage('Error booking event. Please try again.');
+        } finally {
+            setSubmitting(false);
         }
     };
 
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
-                <div className="loading-container">
+                <div className="loading-container text-center">
+                    <Spinner animation="border" role="status" />
                     <div className="loading-text">Loading...</div>
                 </div>
             ) : event ? (
@@ -106,8 +111,8 @@ const EventDetails = () => {
                                             <Field name="guests" type="number" className="form-control" />
                                             <ErrorMessage name="guests" component="div" className="text-danger" />
                                         </div>
-                                        <Button variant="primary" type="submit" className="w-100">
-                                            Book Now
+                                        <Button variant="primary" type="submit" className="w-100" disabled={submitting}>
+                                            {submitting ? <Spinner animation="border" size="sm" /> : 'Book Now'}
                                         </Button>
                                     </Form>
                                 )}
