@@ -37,91 +37,86 @@ const EventDetails = () => {
         guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
     });
 
+    const handleBookingSubmit = async (values, resetForm) => {
+        try {
+            await addEventBooking({
+                eventId: event._id,
+                ...values,
+            });
+
+            setShowSuccess(true);
+            setTimeout(() => {
+                navigate('/user-account');
+            }, 2000);
+            resetForm();
+        } catch (error) {
+            console.error('Error booking event:', error);
+            setErrorMessage('Error booking event. Please try again.');
+        }
+    };
+
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
                 <div className="loading-container">
                     <div className="loading-text">Loading...</div>
                 </div>
+            ) : event ? (
+                <>
+                    <Row>
+                        <Col md={8} className="mx-auto">
+                            <h2>{event.name}</h2>
+                            {event.img && <img src={event.img} alt={event.name} className="img-fluid mb-4" />}
+                            <p>{event.description}</p>
+                            <h4>Book This Event</h4>
+                            {showSuccess && (
+                                <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
+                                    Event booked successfully! Redirecting to your account...
+                                </Alert>
+                            )}
+                            {errorMessage && (
+                                <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
+                                    {errorMessage}
+                                </Alert>
+                            )}
+                            <Formik
+                                initialValues={{ name: '', email: '', date: '', guests: '' }}
+                                validationSchema={BookingSchema}
+                                onSubmit={(values, { resetForm }) => handleBookingSubmit(values, resetForm)}
+                            >
+                                {({ handleSubmit }) => (
+                                    <Form onSubmit={handleSubmit}>
+                                        <div className="form-group">
+                                            <label>Name</label>
+                                            <Field name="name" type="text" className="form-control" />
+                                            <ErrorMessage name="name" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Email</label>
+                                            <Field name="email" type="email" className="form-control" />
+                                            <ErrorMessage name="email" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Date of Event</label>
+                                            <Field name="date" type="date" className="form-control" />
+                                            <ErrorMessage name="date" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Number of Guests</label>
+                                            <Field name="guests" type="number" className="form-control" />
+                                            <ErrorMessage name="guests" component="div" className="text-danger" />
+                                        </div>
+                                        <Button variant="primary" type="submit" className="w-100">
+                                            Book Now
+                                        </Button>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </Col>
+                    </Row>
+                </>
             ) : (
-                event ? (
-                    <>
-                        <Row>
-                            <Col md={8} className="mx-auto">
-                                <h2>{event.name}</h2>
-                                {event.img && (
-                                    <img src={event.img} alt={event.name} className="img-fluid mb-4" />
-                                )}
-                                <p>{event.description}</p>
-                                <h4>Book This Event</h4>
-                                {showSuccess && (
-                                    <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                                        Event booked successfully! Redirecting to your account...
-                                    </Alert>
-                                )}
-                                {errorMessage && (
-                                    <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
-                                        {errorMessage}
-                                    </Alert>
-                                )}
-                                <Formik
-                                    initialValues={{ name: '', email: '', date: '', guests: '' }}
-                                    validationSchema={BookingSchema}
-                                    onSubmit={(values, { resetForm }) => {
-                                        try {
-                                            // Add event booking to local state
-                                            addEventBooking({
-                                                eventId: event._id,
-                                                ...values,
-                                            });
-
-                                            setShowSuccess(true);
-
-                                            // Redirect to user account page after a short delay
-                                            setTimeout(() => {
-                                                navigate('/user-account');
-                                            }, 2000);
-                                            resetForm();
-                                        } catch (error) {
-                                            console.error('Error booking event:', error);
-                                            setErrorMessage('Error booking event. Please try again.');
-                                        }
-                                    }}
-                                >
-                                    {({ handleSubmit }) => (
-                                        <Form onSubmit={handleSubmit}>
-                                            <div className="form-group">
-                                                <label>Name</label>
-                                                <Field name="name" type="text" className="form-control" />
-                                                <ErrorMessage name="name" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Email</label>
-                                                <Field name="email" type="email" className="form-control" />
-                                                <ErrorMessage name="email" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Date of Event</label>
-                                                <Field name="date" type="date" className="form-control" />
-                                                <ErrorMessage name="date" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Number of Guests</label>
-                                                <Field name="guests" type="number" className="form-control" />
-                                                <ErrorMessage name="guests" component="div" className="text-danger" />
-                                            </div>
-                                            <Button variant="primary" type="submit" className="w-100">
-                                                Book Now
-                                            </Button>
-                                        </Form>
-                                    )}
-                                </Formik>
-                            </Col>
-                        </Row>
-                    </>
-                ) : (
-                    <Alert variant="danger">Event not found.</Alert>
-                )
+                <Alert variant="danger">Event not found.</Alert>
             )}
         </Container>
     );

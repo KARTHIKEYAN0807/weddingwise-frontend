@@ -3,9 +3,18 @@ import { Container, Table, Button, Form, Modal, Alert, Spinner } from 'react-boo
 import { AppContext } from '../context/AppContext';
 
 const UserAccount = () => {
-    const { user, bookedEvents, bookedVendors, deleteEventBooking, updateEventBooking, deleteVendorBooking, updateVendorBooking, confirmBookings, loading } = useContext(AppContext);
+    const { 
+        user, 
+        bookedEvents, 
+        bookedVendors, 
+        deleteEventBooking, 
+        updateEventBooking, 
+        deleteVendorBooking, 
+        updateVendorBooking, 
+        confirmBookings, 
+        loading 
+    } = useContext(AppContext);
 
-    // State management for editing events/vendors and modal visibility
     const [editingEventIndex, setEditingEventIndex] = useState(null);
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
@@ -95,8 +104,7 @@ const UserAccount = () => {
         e.preventDefault();
         try {
             const { eventId, name, email, guests, date } = editEventData;
-            
-            // Validate required fields
+
             if (!eventId || !name || !email || !guests || !date) {
                 setError('All fields, including the event name, date, and guests, are required.');
                 return;
@@ -120,11 +128,10 @@ const UserAccount = () => {
                 date
             };
 
-            // Update event booking
             await updateEventBooking(editingEventIndex, updatedData);
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
-            setError('');  // Clear error after success
+            setError('');
         } catch (err) {
             setError('Error updating the event booking. Please try again.');
         }
@@ -136,7 +143,6 @@ const UserAccount = () => {
         try {
             const { vendorName, name, email, date, guests } = editVendorData;
 
-            // Validate required fields
             if (!vendorName || !name || !email || !date || !guests) {
                 setError('All fields are required for the vendor, including the number of guests and booking date.');
                 return;
@@ -144,11 +150,10 @@ const UserAccount = () => {
 
             const updatedData = { vendorName, name, email, date, guests };
 
-            // Update vendor booking
             await updateVendorBooking(editingVendorIndex, updatedData);
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
-            setError('');  // Clear error after success
+            setError('');
         } catch (err) {
             setError('Error updating the vendor booking. Please try again.');
         }
