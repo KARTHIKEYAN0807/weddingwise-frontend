@@ -19,7 +19,7 @@ const EventDetails = () => {
         const fetchEvent = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/events/${id}`);
-                setEvent(response.data.data); // access data correctly
+                setEvent(response.data);
             } catch (error) {
                 console.error('Error fetching event:', error);
                 setErrorMessage('Event not found.');
@@ -30,7 +30,9 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
+    // Yup validation schema with eventName validation
     const BookingSchema = Yup.object().shape({
+        eventName: Yup.string().required('Event name is required'), // Updated field: Event name validation
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
@@ -47,7 +49,7 @@ const EventDetails = () => {
                 <>
                     <Row>
                         <Col md={8} className="mx-auto">
-                            <h2>{event.name}</h2>
+                            <h2>{event.name}</h2> {/* Display event name */}
                             {event.img && (
                                 <img src={event.img} alt={event.name} className="img-fluid mb-4" />
                             )}
@@ -65,6 +67,7 @@ const EventDetails = () => {
                             )}
                             <Formik
                                 initialValues={{
+                                    eventName: event?.name || '', // Pre-fill event name with event.name
                                     userName: user?.name || '',
                                     email: user?.email || '',
                                     date: '',
@@ -73,9 +76,8 @@ const EventDetails = () => {
                                 validationSchema={BookingSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {
-                                        // Send eventId
                                         await addEventBooking({
-                                            eventId: event._id, // Pass eventId
+                                            eventId: event._id,
                                             ...values,
                                         });
 
@@ -92,6 +94,11 @@ const EventDetails = () => {
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Event Name</Form.Label> {/* Updated to "Event Name" */}
+                                            <Field name="eventName" type="text" className="form-control" disabled />
+                                            <ErrorMessage name="eventName" component="div" className="text-danger" />
+                                        </Form.Group>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Your Name</Form.Label>
                                             <Field name="userName" type="text" className="form-control" />
