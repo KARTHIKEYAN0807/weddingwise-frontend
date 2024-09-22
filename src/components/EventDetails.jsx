@@ -30,10 +30,12 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
+    // Yup validation schema with eventName validation
     const BookingSchema = Yup.object().shape({
-        name: Yup.string().required('Your name is required'),
+        eventName: Yup.string().required('Event name is required'), // Event name validation
+        userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
-        date: Yup.date().required('Date is required'),
+        date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
         guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
     });
 
@@ -65,7 +67,8 @@ const EventDetails = () => {
                             )}
                             <Formik
                                 initialValues={{
-                                    name: user?.name || '',
+                                    eventName: event?.name || '', // Pre-fill event name
+                                    userName: user?.name || '',
                                     email: user?.email || '',
                                     date: '',
                                     guests: 1 // Default value for guests
@@ -92,9 +95,14 @@ const EventDetails = () => {
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
                                         <Form.Group className="mb-3">
+                                            <Form.Label>Event Name</Form.Label>
+                                            <Field name="eventName" type="text" className="form-control" disabled />
+                                            <ErrorMessage name="eventName" component="div" className="text-danger" />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
                                             <Form.Label>Your Name</Form.Label>
-                                            <Field name="name" type="text" className="form-control" />
-                                            <ErrorMessage name="name" component="div" className="text-danger" />
+                                            <Field name="userName" type="text" className="form-control" />
+                                            <ErrorMessage name="userName" component="div" className="text-danger" />
                                         </Form.Group>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Email</Form.Label>
