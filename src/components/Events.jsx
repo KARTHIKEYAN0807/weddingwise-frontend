@@ -17,11 +17,11 @@ const Events = () => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get('https://weddingwisebooking.onrender.com/api/events');
-        console.log('Fetched events:', response.data); // Log the response for debugging
+        console.log('Fetched events:', response.data); // Log to see what data is received
 
-        // Ensure the response data is an array
-        if (Array.isArray(response.data)) {
-          setEvents(response.data); 
+        // Check if the response has the correct structure and data
+        if (response.data && response.data.status === 'success') {
+          setEvents(response.data.data); // Access the "data" array
         } else {
           console.error('Unexpected data format:', response.data);
           setErrorMessage('Invalid data format received from the server.');
@@ -69,7 +69,6 @@ const Events = () => {
         />
       </Form>
 
-      {/* Display loading spinner while fetching events */}
       {loading ? (
         <div className="d-flex justify-content-center">
           <Spinner animation="border" />
