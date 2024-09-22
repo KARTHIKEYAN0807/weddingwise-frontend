@@ -1,4 +1,3 @@
-// frontend/src/components/VendorDetails.js
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
@@ -20,8 +19,13 @@ const VendorDetails = () => {
         const fetchVendor = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/vendors/${id}`);
-                console.log('Fetched vendor:', response.data); // Debugging line
-                setVendor(response.data.data); // Ensure the API response contains vendor data in the 'data' field
+                console.log(response.data); // Ensure correct data structure
+                // Check if response.data.data is an array before setting it
+                if (response.data && typeof response.data === 'object' && response.data.data) {
+                    setVendor(response.data.data);
+                } else {
+                    setErrorMessage('Vendor data format is incorrect');
+                }
             } catch (error) {
                 console.error('Error fetching vendor:', error);
                 setErrorMessage('Vendor not found.');
@@ -83,14 +87,11 @@ const VendorDetails = () => {
                                     validationSchema={BookingSchema}
                                     onSubmit={(values, { resetForm }) => {
                                         try {
-                                            // Add vendor booking to local state
                                             addVendorBooking({
                                                 vendorName: vendor.name,
                                                 ...values,
                                             });
                                             setShowSuccess(true);
-                                            
-                                            // Redirect to user account page after a short delay
                                             setTimeout(() => {
                                                 navigate('/user-account');
                                             }, 2000);
