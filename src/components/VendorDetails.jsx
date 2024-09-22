@@ -35,7 +35,7 @@ const VendorDetails = () => {
         vendorName: Yup.string().required('Vendor name is required'),
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
-        date: Yup.date().required('Date is required'),
+        date: Yup.date().required('Date is required').nullable(),
         guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
     });
 
