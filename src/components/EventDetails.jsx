@@ -7,7 +7,7 @@ import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
-    const { id } = useParams();
+    const { id } = useParams(); // The event ID from the URL
     const { user, addEventBooking } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
@@ -30,9 +30,8 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
-    // Yup validation schema with eventName validation
     const BookingSchema = Yup.object().shape({
-        eventName: Yup.string().required('Event name is required'), 
+        eventName: Yup.string().required('Event name is required'), // Event name validation
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
@@ -67,11 +66,11 @@ const EventDetails = () => {
                             )}
                             <Formik
                                 initialValues={{
-                                    eventName: event?.name || '', 
+                                    eventName: event?.name || '', // Pre-fill event name
                                     userName: user?.name || '',
                                     email: user?.email || '',
                                     date: '',
-                                    guests: 1 
+                                    guests: 1 // Default value for guests
                                 }}
                                 validationSchema={BookingSchema}
                                 onSubmit={async (values, { resetForm }) => {
