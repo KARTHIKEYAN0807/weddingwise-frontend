@@ -116,19 +116,23 @@ export const AppProvider = ({ children }) => {
     };
 
     // Add new vendor booking
-    const addVendorBooking = (booking) => {
+    const addVendorBooking = async (booking) => {
         if (!booking.vendorName || !booking.name || !booking.email || !booking.date) {
             alert('All fields are required for vendor booking.');
             return;
         }
 
-        const vendorWithId = {
-            ...booking,
-            _id: booking._id || `local-${Date.now()}-${Math.random()}` // Generate unique ID for local vendors
-        };
-        const updatedBookedVendors = [...bookedVendors, vendorWithId];
-        setBookedVendors(updatedBookedVendors);
-        localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, booking);
+            const savedVendorBooking = response.data.data;
+
+            const updatedBookedVendors = [...bookedVendors, savedVendorBooking];
+            setBookedVendors(updatedBookedVendors);
+            localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
+        } catch (error) {
+            console.error('Error booking vendor:', error.response?.data || error.message);
+            alert('Error booking vendor. Please try again.');
+        }
     };
 
     // Delete event booking
@@ -225,7 +229,8 @@ export const AppProvider = ({ children }) => {
                 vendorName: updatedBooking.vendorName,
                 name: updatedBooking.name,
                 email: updatedBooking.email,
-                date: updatedBooking.date
+                date: updatedBooking.date,
+                guests: updatedBooking.guests,
             };
 
             if (vendorId.startsWith('local-')) {
