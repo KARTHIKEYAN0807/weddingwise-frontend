@@ -19,9 +19,7 @@ const VendorDetails = () => {
         const fetchVendor = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/vendors/${id}`);
-                console.log(response.data); // Ensure correct data structure
-                // Check if response.data.data is an array before setting it
-                if (response.data && typeof response.data === 'object' && response.data.data) {
+                if (response.data && response.data.data) {
                     setVendor(response.data.data);
                 } else {
                     setErrorMessage('Vendor data format is incorrect');
@@ -57,87 +55,94 @@ const VendorDetails = () => {
                 </div>
             ) : (
                 vendor ? (
-                    <>
-                        <Row>
-                            <Col md={8} className="mx-auto">
-                                <h2>{vendor.name}</h2>
-                                {vendor.img && (
-                                    <img src={vendor.img} alt={vendor.name} className="img-fluid mb-4" />
-                                )}
-                                <p>{vendor.description}</p>
-                                <h4>Book This Vendor</h4>
-                                {showSuccess && (
-                                    <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                                        Vendor booked successfully! Redirecting to your account...
-                                    </Alert>
-                                )}
-                                {errorMessage && (
-                                    <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
-                                        {errorMessage}
-                                    </Alert>
-                                )}
-                                <Formik
-                                    initialValues={{
-                                        vendorName: vendor.name || 'Untitled Vendor',
-                                        userName: user?.name || '', // Auto-fill user's name
-                                        email: user?.email || '', // Auto-fill user's email
-                                        date: '',
-                                        guests: ''
-                                    }}
-                                    validationSchema={BookingSchema}
-                                    onSubmit={(values, { resetForm }) => {
-                                        try {
-                                            addVendorBooking({
-                                                vendorName: vendor.name,
-                                                ...values,
-                                            });
+                    <Row>
+                        <Col md={8} className="mx-auto">
+                            <h2>{vendor.name}</h2>
+                            {vendor.img && (
+                                <img src={vendor.img} alt={vendor.name} className="img-fluid mb-4" />
+                            )}
+                            <p>{vendor.description}</p>
+                            <h4>Book This Vendor</h4>
+                            {showSuccess && (
+                                <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
+                                    Vendor booked successfully! Redirecting to your account...
+                                </Alert>
+                            )}
+                            {errorMessage && (
+                                <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
+                                    {errorMessage}
+                                </Alert>
+                            )}
+                            <Formik
+                                initialValues={{
+                                    vendorName: vendor.name || 'Untitled Vendor',
+                                    userName: user?.name || '', // Auto-fill user's name
+                                    email: user?.email || '', // Auto-fill user's email
+                                    date: '',
+                                    guests: ''
+                                }}
+                                validationSchema={BookingSchema}
+                                onSubmit={async (values, { resetForm }) => {
+                                    try {
+                                        // Send booking details to the backend
+                                        const bookingResponse = await axios.post('https://weddingwisebooking.onrender.com/api/vendors/book', {
+                                            vendorName: values.vendorName,
+                                            name: values.userName,
+                                            email: values.email,
+                                            date: values.date,
+                                            guests: values.guests,
+                                        });
+
+                                        if (bookingResponse.status === 201) {
                                             setShowSuccess(true);
                                             setTimeout(() => {
                                                 navigate('/user-account');
                                             }, 2000);
                                             resetForm();
-                                        } catch (error) {
-                                            console.error('Error booking vendor:', error);
+                                        } else {
                                             setErrorMessage('Error booking vendor. Please try again.');
                                         }
-                                    }}
-                                >
-                                    {({ handleSubmit }) => (
-                                        <Form onSubmit={handleSubmit}>
-                                            <div className="form-group">
-                                                <label>Vendor Name</label>
-                                                <Field name="vendorName" type="text" className="form-control" disabled />
-                                                <ErrorMessage name="vendorName" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Your Name</label>
-                                                <Field name="userName" type="text" className="form-control" />
-                                                <ErrorMessage name="userName" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Email</label>
-                                                <Field name="email" type="email" className="form-control" />
-                                                <ErrorMessage name="email" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Date of Event</label>
-                                                <Field name="date" type="date" className="form-control" />
-                                                <ErrorMessage name="date" component="div" className="text-danger" />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Number of Guests</label>
-                                                <Field name="guests" type="number" className="form-control" />
-                                                <ErrorMessage name="guests" component="div" className="text-danger" />
-                                            </div>
-                                            <Button variant="primary" type="submit" className="w-100">
-                                                Book Now
-                                            </Button>
-                                        </Form>
-                                    )}
-                                </Formik>
-                            </Col>
-                        </Row>
-                    </>
+                                    } catch (error) {
+                                        console.error('Error booking vendor:', error);
+                                        setErrorMessage('Error booking vendor. Please try again.');
+                                    }
+                                }}
+                            >
+                                {({ handleSubmit }) => (
+                                    <Form onSubmit={handleSubmit}>
+                                        <div className="form-group">
+                                            <label>Vendor Name</label>
+                                            <Field name="vendorName" type="text" className="form-control" disabled />
+                                            <ErrorMessage name="vendorName" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Your Name</label>
+                                            <Field name="userName" type="text" className="form-control" />
+                                            <ErrorMessage name="userName" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Email</label>
+                                            <Field name="email" type="email" className="form-control" />
+                                            <ErrorMessage name="email" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Date of Event</label>
+                                            <Field name="date" type="date" className="form-control" />
+                                            <ErrorMessage name="date" component="div" className="text-danger" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Number of Guests</label>
+                                            <Field name="guests" type="number" className="form-control" />
+                                            <ErrorMessage name="guests" component="div" className="text-danger" />
+                                        </div>
+                                        <Button variant="primary" type="submit" className="w-100">
+                                            Book Now
+                                        </Button>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </Col>
+                    </Row>
                 ) : (
                     <Alert variant="danger">Vendor not found.</Alert>
                 )
