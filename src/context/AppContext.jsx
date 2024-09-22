@@ -37,6 +37,7 @@ export const AppProvider = ({ children }) => {
             localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(userData));
             localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            fetchBookedVendors(); // Fetch vendor bookings after login
         } else {
             console.error('Invalid token');
         }
@@ -319,6 +320,7 @@ export const AppProvider = ({ children }) => {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                fetchBookedVendors(); // Fetch vendor bookings after login or page refresh
             } catch (error) {
                 console.error('Error parsing stored user:', error);
                 logoutUser();
