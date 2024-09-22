@@ -30,13 +30,17 @@ const VendorDetails = () => {
         fetchVendor();
     }, [id]);
 
-    // Updated Yup validation schema
+    // Yup validation schema
     const BookingSchema = Yup.object().shape({
         vendorName: Yup.string().required('Vendor name is required'),
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
-        date: Yup.date().required('Date is required').nullable(),
-        guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
+        date: Yup.date()
+            .required('Date is required')
+            .min(new Date(), 'Date must be in the future'),
+        guests: Yup.number()
+            .min(1, 'At least 1 guest is required')
+            .required('Number of guests is required'),
     });
 
     return (
