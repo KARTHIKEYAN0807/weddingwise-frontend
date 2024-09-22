@@ -1,3 +1,4 @@
+// frontend/src/components/VendorDetails.js
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
@@ -19,7 +20,7 @@ const VendorDetails = () => {
         const fetchVendor = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/vendors/${id}`);
-                setVendor(response.data);
+                setVendor(response.data.data);
             } catch (error) {
                 console.error('Error fetching vendor:', error);
                 setErrorMessage('Vendor not found.');
@@ -81,15 +82,11 @@ const VendorDetails = () => {
                                     validationSchema={BookingSchema}
                                     onSubmit={(values, { resetForm }) => {
                                         try {
-                                            // Add vendor booking to local state
                                             addVendorBooking({
                                                 vendorName: vendor.name,
                                                 ...values,
                                             });
-
                                             setShowSuccess(true);
-                                            
-                                            // Redirect to user account page after a short delay
                                             setTimeout(() => {
                                                 navigate('/user-account');
                                             }, 2000);
