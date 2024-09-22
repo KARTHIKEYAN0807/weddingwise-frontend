@@ -8,7 +8,7 @@ const Events = () => {
   const navigate = useNavigate();
   const { user } = useContext(AppContext);
   const [searchTerm, setSearchTerm] = useState('');
-  const [events, setEvents] = useState([]); // Initialize as an empty array
+  const [events, setEvents] = useState([]); // Ensure events is initialized as an empty array
   const [loading, setLoading] = useState(true); 
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -17,9 +17,11 @@ const Events = () => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get('https://weddingwisebooking.onrender.com/api/events');
-        
+        console.log('Fetched events:', response.data); // Log the response for debugging
+
+        // Ensure the response data is an array
         if (Array.isArray(response.data)) {
-          setEvents(response.data); // Ensure response.data is an array
+          setEvents(response.data); 
         } else {
           console.error('Unexpected data format:', response.data);
           setErrorMessage('Invalid data format received from the server.');
