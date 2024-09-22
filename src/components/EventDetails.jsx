@@ -19,7 +19,7 @@ const EventDetails = () => {
         const fetchEvent = async () => {
             try {
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/events/${id}`);
-                setEvent(response.data);
+                setEvent(response.data.data); // access data correctly
             } catch (error) {
                 console.error('Error fetching event:', error);
                 setErrorMessage('Event not found.');
@@ -31,48 +31,11 @@ const EventDetails = () => {
     }, [id]);
 
     const BookingSchema = Yup.object().shape({
-        eventName: Yup.string().required('Event name is required'), // Event name validation
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
         guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
     });
-
-    const handleSubmitBooking = async (values, { resetForm }) => {
-        try {
-            // Log the data being sent to the backend for verification
-            console.log("Booking Data:", {
-                eventId: event._id,  // Verify if this value is correct
-                eventName: values.eventName,
-                userName: values.userName,
-                email: values.email,
-                date: values.date,
-                guests: values.guests
-            });
-
-            // Send booking request
-            await addEventBooking({
-                eventId: event._id,
-                ...values,
-            });
-
-            setShowSuccess(true);
-            setTimeout(() => {
-                navigate('/user-account');
-                resetForm();
-            }, 2000);
-        } catch (error) {
-            // Log the error response from the server
-            console.error('Error booking event:', error.response || error);
-
-            if (error.response?.data) {
-                // Show detailed error message from server
-                setErrorMessage(error.response.data.msg || 'Error booking event. Please try again.');
-            } else {
-                setErrorMessage('Unknown error occurred.');
-            }
-        }
-    };
 
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
@@ -102,22 +65,33 @@ const EventDetails = () => {
                             )}
                             <Formik
                                 initialValues={{
-                                    eventName: event?.name || '', // Pre-fill event name
                                     userName: user?.name || '',
                                     email: user?.email || '',
                                     date: '',
                                     guests: 1 // Default value for guests
                                 }}
                                 validationSchema={BookingSchema}
-                                onSubmit={handleSubmitBooking}
+                                onSubmit={async (values, { resetForm }) => {
+                                    try {
+                                        // Send eventId
+                                        await addEventBooking({
+                                            eventId: event._id, // Pass eventId
+                                            ...values,
+                                        });
+
+                                        setShowSuccess(true);
+                                        setTimeout(() => {
+                                            navigate('/user-account');
+                                            resetForm();
+                                        }, 2000);
+                                    } catch (error) {
+                                        console.error('Error booking event:', error);
+                                        setErrorMessage('Error booking event. Please try again.');
+                                    }
+                                }}
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
-                                        <Form.Group className="mb-3">
-                                            <Form.Label>Event Name</Form.Label>
-                                            <Field name="eventName" type="text" className="form-control" disabled />
-                                            <ErrorMessage name="eventName" component="div" className="text-danger" />
-                                        </Form.Group>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Your Name</Form.Label>
                                             <Field name="userName" type="text" className="form-control" />
