@@ -7,7 +7,7 @@ import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
-    const { id } = useParams(); // Event ID from URL
+    const { id } = useParams(); // The event ID from the URL
     const { user, addEventBooking } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
@@ -30,14 +30,49 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
-    // Validation schema for booking
     const BookingSchema = Yup.object().shape({
-        eventName: Yup.string().required('Event name is required'),
+        eventName: Yup.string().required('Event name is required'), // Event name validation
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
         guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
     });
+
+    const handleSubmitBooking = async (values, { resetForm }) => {
+        try {
+            // Log the data being sent to the backend for verification
+            console.log("Booking Data:", {
+                eventId: event._id,  // Verify if this value is correct
+                eventName: values.eventName,
+                userName: values.userName,
+                email: values.email,
+                date: values.date,
+                guests: values.guests
+            });
+
+            // Send booking request
+            await addEventBooking({
+                eventId: event._id,
+                ...values,
+            });
+
+            setShowSuccess(true);
+            setTimeout(() => {
+                navigate('/user-account');
+                resetForm();
+            }, 2000);
+        } catch (error) {
+            // Log the error response from the server
+            console.error('Error booking event:', error.response || error);
+
+            if (error.response?.data) {
+                // Show detailed error message from server
+                setErrorMessage(error.response.data.msg || 'Error booking event. Please try again.');
+            } else {
+                setErrorMessage('Unknown error occurred.');
+            }
+        }
+    };
 
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
@@ -74,26 +109,7 @@ const EventDetails = () => {
                                     guests: 1 // Default value for guests
                                 }}
                                 validationSchema={BookingSchema}
-                                onSubmit={async (values, { resetForm }) => {
-                                    try {
-                                        // Ensure valid event ID
-                                        console.log('Event ID:', event._id);  // Log to verify the correct ID
-
-                                        await addEventBooking({
-                                            eventId: event._id,  // Use event._id as the eventId
-                                            ...values,
-                                        });
-
-                                        setShowSuccess(true);
-                                        setTimeout(() => {
-                                            navigate('/user-account');
-                                            resetForm();
-                                        }, 2000);
-                                    } catch (error) {
-                                        console.error('Error booking event:', error);
-                                        setErrorMessage('Error booking event. Please try again.');
-                                    }
-                                }}
+                                onSubmit={handleSubmitBooking}
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
