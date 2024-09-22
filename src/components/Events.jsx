@@ -8,8 +8,8 @@ const Events = () => {
   const navigate = useNavigate();
   const { user } = useContext(AppContext);
   const [searchTerm, setSearchTerm] = useState('');
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [events, setEvents] = useState([]); // Ensure events is initialized as an empty array
+  const [loading, setLoading] = useState(true); 
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -17,27 +17,26 @@ const Events = () => {
     const fetchEvents = async () => {
       try {
         const response = await axios.get('https://weddingwisebooking.onrender.com/api/events');
-        setEvents(response.data);
+        setEvents(response.data); // Make sure response.data is an array
       } catch (error) {
         console.error('Error fetching events:', error);
-        setErrorMessage(
-          error.response?.data?.msg || 'Something went wrong. Please try again later.'
-        );
+        setErrorMessage(error.response?.data?.msg || 'Failed to load events.');
       } finally {
-        setLoading(false); // Stop loading after fetching or error
+        setLoading(false); 
       }
     };
 
     fetchEvents();
   }, []);
 
-  // Filter events based on the search term
-  const filteredEvents = events.filter((event) =>
-    (event.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Ensure events is an array before filtering
+  const filteredEvents = Array.isArray(events) 
+    ? events.filter((event) => (event.name || '').toLowerCase().includes(searchTerm.toLowerCase()))
+    : [];
 
   const handleBookEvent = (event) => {
     if (user) {
+      console.log('Event ID being sent:', event._id); // Debugging log
       navigate(`/events/${event._id}`);
     } else {
       alert('Please log in or register to book an event.');
@@ -69,7 +68,7 @@ const Events = () => {
         </div>
       ) : filteredEvents.length === 0 ? (
         <Alert variant="info" className="text-center">
-          {searchTerm ? 'No events match your search criteria.' : 'No events available.'}
+          No events found.
         </Alert>
       ) : (
         <Row>
@@ -78,7 +77,7 @@ const Events = () => {
               <Card>
                 <Card.Img
                   variant="top"
-                  src={event.img || '/images/default-event.jpg'} // Ensure this image exists
+                  src={event.img || '/images/default-event.jpg'}
                   alt={event.name}
                 />
                 <Card.Body>

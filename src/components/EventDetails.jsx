@@ -30,9 +30,9 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
-    // Yup validation schema
+    // Yup validation schema with eventName validation
     const BookingSchema = Yup.object().shape({
-        eventName: Yup.string().required('Event name is required'),
+        eventName: Yup.string().required('Event name is required'), 
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
@@ -46,86 +46,88 @@ const EventDetails = () => {
                     <Spinner animation="border" />
                 </div>
             ) : event ? (
-                <Row>
-                    <Col md={8} className="mx-auto">
-                        <h2>{event.name}</h2>
-                        {event.img && (
-                            <img src={event.img} alt={event.name} className="img-fluid mb-4" />
-                        )}
-                        <p>{event.description}</p>
-                        <h4>Book This Event</h4>
-                        {showSuccess && (
-                            <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                                Event booked successfully! Redirecting to your account...
-                            </Alert>
-                        )}
-                        {errorMessage && (
-                            <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
-                                {errorMessage}
-                            </Alert>
-                        )}
-                        <Formik
-                            initialValues={{
-                                eventName: event?.name || '',
-                                userName: user?.name || '',
-                                email: user?.email || '',
-                                date: '',
-                                guests: 1,
-                            }}
-                            validationSchema={BookingSchema}
-                            onSubmit={async (values, { resetForm }) => {
-                                try {
-                                    await addEventBooking({
-                                        eventId: event._id,
-                                        ...values,
-                                    });
-
-                                    setShowSuccess(true);
-                                    setTimeout(() => {
-                                        navigate('/user-account');
-                                        resetForm();
-                                    }, 2000);
-                                } catch (error) {
-                                    console.error('Error booking event:', error);
-                                    setErrorMessage('Error booking event. Please try again.');
-                                }
-                            }}
-                        >
-                            {({ handleSubmit }) => (
-                                <Form onSubmit={handleSubmit}>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Event Name</Form.Label>
-                                        <Field name="eventName" type="text" className="form-control" disabled />
-                                        <ErrorMessage name="eventName" component="div" className="text-danger" />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Your Name</Form.Label>
-                                        <Field name="userName" type="text" className="form-control" />
-                                        <ErrorMessage name="userName" component="div" className="text-danger" />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Email</Form.Label>
-                                        <Field name="email" type="email" className="form-control" />
-                                        <ErrorMessage name="email" component="div" className="text-danger" />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Date of Event</Form.Label>
-                                        <Field name="date" type="date" className="form-control" />
-                                        <ErrorMessage name="date" component="div" className="text-danger" />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Number of Guests</Form.Label>
-                                        <Field name="guests" type="number" className="form-control" />
-                                        <ErrorMessage name="guests" component="div" className="text-danger" />
-                                    </Form.Group>
-                                    <Button variant="primary" type="submit" className="w-100">
-                                        Book Now
-                                    </Button>
-                                </Form>
+                <>
+                    <Row>
+                        <Col md={8} className="mx-auto">
+                            <h2>{event.name}</h2>
+                            {event.img && (
+                                <img src={event.img} alt={event.name} className="img-fluid mb-4" />
                             )}
-                        </Formik>
-                    </Col>
-                </Row>
+                            <p>{event.description}</p>
+                            <h4>Book This Event</h4>
+                            {showSuccess && (
+                                <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
+                                    Event booked successfully! Redirecting to your account...
+                                </Alert>
+                            )}
+                            {errorMessage && (
+                                <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
+                                    {errorMessage}
+                                </Alert>
+                            )}
+                            <Formik
+                                initialValues={{
+                                    eventName: event?.name || '', 
+                                    userName: user?.name || '',
+                                    email: user?.email || '',
+                                    date: '',
+                                    guests: 1 
+                                }}
+                                validationSchema={BookingSchema}
+                                onSubmit={async (values, { resetForm }) => {
+                                    try {
+                                        await addEventBooking({
+                                            eventId: event._id,
+                                            ...values,
+                                        });
+
+                                        setShowSuccess(true);
+                                        setTimeout(() => {
+                                            navigate('/user-account');
+                                            resetForm();
+                                        }, 2000);
+                                    } catch (error) {
+                                        console.error('Error booking event:', error);
+                                        setErrorMessage('Error booking event. Please try again.');
+                                    }
+                                }}
+                            >
+                                {({ handleSubmit }) => (
+                                    <Form onSubmit={handleSubmit}>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Event Name</Form.Label>
+                                            <Field name="eventName" type="text" className="form-control" disabled />
+                                            <ErrorMessage name="eventName" component="div" className="text-danger" />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Your Name</Form.Label>
+                                            <Field name="userName" type="text" className="form-control" />
+                                            <ErrorMessage name="userName" component="div" className="text-danger" />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Email</Form.Label>
+                                            <Field name="email" type="email" className="form-control" />
+                                            <ErrorMessage name="email" component="div" className="text-danger" />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Date of Event</Form.Label>
+                                            <Field name="date" type="date" className="form-control" />
+                                            <ErrorMessage name="date" component="div" className="text-danger" />
+                                        </Form.Group>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Number of Guests</Form.Label>
+                                            <Field name="guests" type="number" className="form-control" />
+                                            <ErrorMessage name="guests" component="div" className="text-danger" />
+                                        </Form.Group>
+                                        <Button variant="primary" type="submit" className="w-100">
+                                            Book Now
+                                        </Button>
+                                    </Form>
+                                )}
+                            </Formik>
+                        </Col>
+                    </Row>
+                </>
             ) : (
                 <Alert variant="danger">Event not found.</Alert>
             )}
