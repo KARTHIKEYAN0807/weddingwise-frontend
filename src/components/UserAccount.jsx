@@ -3,16 +3,16 @@ import { Container, Table, Button, Form, Modal, Alert, Spinner } from 'react-boo
 import { AppContext } from '../context/AppContext';
 
 const UserAccount = () => {
-    const { 
-        user, 
-        bookedEvents, 
-        bookedVendors, 
-        deleteEventBooking, 
-        updateEventBooking, 
-        deleteVendorBooking, 
-        updateVendorBooking, 
-        confirmBookings, 
-        loading 
+    const {
+        user,
+        bookedEvents,
+        bookedVendors,
+        deleteEventBooking,
+        updateEventBooking,
+        deleteVendorBooking,
+        updateVendorBooking,
+        confirmBookings,
+        loading
     } = useContext(AppContext);
 
     const [editingEventIndex, setEditingEventIndex] = useState(null);

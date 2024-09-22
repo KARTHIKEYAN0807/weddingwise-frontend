@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Card, Container, Row, Col, Button, Form, Alert } from 'react-bootstrap';
+import { Card, Container, Row, Col, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -9,17 +9,20 @@ const Events = () => {
   const { user } = useContext(AppContext);
   const [searchTerm, setSearchTerm] = useState('');
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true); // Loading state
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     // Fetch events from the backend
     const fetchEvents = async () => {
       try {
-        const response = await axios.get('https://weddingwisebooking.onrender.com/api/events'); // Update this URL with your events API endpoint
+        const response = await axios.get('https://weddingwisebooking.onrender.com/api/events');
         setEvents(response.data);
       } catch (error) {
         console.error('Error fetching events:', error);
-        setErrorMessage('Failed to load events.');
+        setErrorMessage(error.response?.data?.msg || 'Failed to load events.');
+      } finally {
+        setLoading(false); // Stop loading after fetching or error
       }
     };
 
@@ -27,8 +30,8 @@ const Events = () => {
   }, []);
 
   // Filter events based on the search term
-  const filteredEvents = events.filter(event =>
-    (event.name || '').toLowerCase().includes(searchTerm.toLowerCase()) // Use event.name instead of title or eventTitle
+  const filteredEvents = events.filter((event) =>
+    (event.name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleBookEvent = (event) => {
@@ -56,26 +59,38 @@ const Events = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </Form>
-      <Row>
-        {filteredEvents.map((event) => (
-          <Col md={6} lg={4} key={event._id} className="mb-4">
-            <Card>
-              <Card.Img
-                variant="top"
-                src={event.img || '/images/default-event.jpg'} // Fallback image if no img is provided
-                alt={event.name} // Updated to use event.name
-              />
-              <Card.Body>
-                <Card.Title>{event.name}</Card.Title> {/* Updated to use event.name */}
-                <Card.Text>{event.description || 'No description provided.'}</Card.Text>
-                <Button variant="primary" onClick={() => handleBookEvent(event)}>
-                  Book Now
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+
+      {/* Display loading spinner while fetching events */}
+      {loading ? (
+        <div className="d-flex justify-content-center">
+          <Spinner animation="border" />
+        </div>
+      ) : filteredEvents.length === 0 ? (
+        <Alert variant="info" className="text-center">
+          No events found.
+        </Alert>
+      ) : (
+        <Row>
+          {filteredEvents.map((event) => (
+            <Col md={6} lg={4} key={event._id} className="mb-4">
+              <Card>
+                <Card.Img
+                  variant="top"
+                  src={event.img || '/images/default-event.jpg'}
+                  alt={event.name}
+                />
+                <Card.Body>
+                  <Card.Title>{event.name}</Card.Title>
+                  <Card.Text>{event.description || 'No description provided.'}</Card.Text>
+                  <Button variant="primary" onClick={() => handleBookEvent(event)}>
+                    Book Now
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
     </Container>
   );
 };

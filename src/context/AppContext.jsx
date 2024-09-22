@@ -37,7 +37,7 @@ export const AppProvider = ({ children }) => {
             localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(userData));
             localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            fetchBookedVendors(); // Fetch vendor bookings after login
+            fetchBookedData(); // Fetch both event and vendor bookings after login
         } else {
             console.error('Invalid token');
         }
@@ -73,50 +73,39 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Intercept axios responses to handle expired tokens
-    useEffect(() => {
-        const interceptor = axios.interceptors.response.use(
-            response => response,
-            async (error) => {
-                const originalRequest = error.config;
-                if (error.response && error.response.status === 401 && error.response.data.msg === 'Token has expired') {
-                    try {
-                        const newToken = await refreshAuthToken();
-                        if (newToken) {
-                            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-                            return axios(originalRequest);
-                        }
-                    } catch (err) {
-                        console.error('Token refresh failed:', err);
-                        return Promise.reject(err);
-                    }
-                }
-                return Promise.reject(error);
-            }
-        );
+    // Fetch booked events and vendors from the database
+    const fetchBookedData = async () => {
+        try {
+            setLoading(true);
+            const eventResponse = await axios.get(`${API_BASE_URL}/api/events/bookings`);
+            const vendorResponse = await axios.get(`${API_BASE_URL}/api/vendors/bookings`);
+            setBookedEvents(eventResponse.data.bookedEvents);
+            setBookedVendors(vendorResponse.data.bookedVendors);
+        } catch (error) {
+            console.error('Error fetching bookings:', error.response?.data || error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        return () => {
-            axios.interceptors.response.eject(interceptor); // Clean up interceptor
-        };
-    }, []);
-
-    // Add new event booking
-    const addEventBooking = (booking) => {
+    // Add new event booking (immediately store in database)
+    const addEventBooking = async (booking) => {
         if (!booking.eventTitle) {
             alert('Event title is required.');
             return;
         }
 
-        const eventWithId = {
-            ...booking,
-            _id: booking._id || `local-${Date.now()}-${Math.random()}` // Generate unique ID for local events
-        };
-        const updatedBookedEvents = [...bookedEvents, eventWithId];
-        setBookedEvents(updatedBookedEvents);
-        localStorage.setItem(LOCAL_STORAGE_BOOKED_EVENTS, JSON.stringify(updatedBookedEvents));
+        try {
+            const response = await axios.post(`${API_BASE_URL}/api/events/book`, booking);
+            const savedEventBooking = response.data.data;
+            setBookedEvents([...bookedEvents, savedEventBooking]);
+        } catch (error) {
+            console.error('Error booking event:', error.response?.data || error.message);
+            alert('Error booking event. Please try again.');
+        }
     };
 
-    // Add new vendor booking
+    // Add new vendor booking (immediately store in database)
     const addVendorBooking = async (booking) => {
         if (!booking.vendorName || !booking.name || !booking.email || !booking.date) {
             alert('All fields are required for vendor booking.');
@@ -126,40 +115,19 @@ export const AppProvider = ({ children }) => {
         try {
             const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, booking);
             const savedVendorBooking = response.data.data;
-
-            const updatedBookedVendors = [...bookedVendors, savedVendorBooking];
-            setBookedVendors(updatedBookedVendors);
-            localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
+            setBookedVendors([...bookedVendors, savedVendorBooking]);
         } catch (error) {
             console.error('Error booking vendor:', error.response?.data || error.message);
             alert('Error booking vendor. Please try again.');
         }
     };
 
-    // Fetch all booked vendors after login or refresh
-    const fetchBookedVendors = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/api/vendors/bookings`);
-            setBookedVendors(response.data.bookedVendors); // Update state with fetched vendor bookings
-        } catch (error) {
-            console.error('Error fetching booked vendors:', error.response?.data || error.message);
-        }
-    };
-
     // Delete event booking
-    const deleteEventBooking = async (index) => {
+    const deleteEventBooking = async (eventId) => {
         setLoading(true);
         try {
-            const event = bookedEvents[index];
-            const eventId = event._id;
-
-            if (eventId && !eventId.startsWith('local-')) {
-                await axios.delete(`${API_BASE_URL}/api/events/${eventId}`);
-            }
-
-            const updatedBookedEvents = bookedEvents.filter((_, i) => i !== index);
-            setBookedEvents(updatedBookedEvents);
-            localStorage.setItem(LOCAL_STORAGE_BOOKED_EVENTS, JSON.stringify(updatedBookedEvents));
+            await axios.delete(`${API_BASE_URL}/api/events/${eventId}`);
+            setBookedEvents(bookedEvents.filter((event) => event._id !== eventId));
         } catch (error) {
             console.error('Error deleting booking:', error.message || error.response?.data);
             alert('Error deleting booking. Please try again.');
@@ -168,53 +136,12 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Update event booking
-    const updateEventBooking = async (index, updatedBooking) => {
-        setLoading(true);
-        try {
-            let event = bookedEvents[index];
-            let eventId = event._id;
-
-            if (!updatedBooking.eventTitle) {
-                alert('Event title is required.');
-                setLoading(false);
-                return;
-            }
-
-            if (eventId.startsWith('local-')) {
-                const response = await axios.post(`${API_BASE_URL}/api/events`, updatedBooking);
-                eventId = response.data._id;
-            } else {
-                await axios.put(`${API_BASE_URL}/api/events/${eventId}`, updatedBooking);
-            }
-
-            const updatedBookedEvents = bookedEvents.map((booking, i) =>
-                i === index ? { ...booking, ...updatedBooking, _id: eventId } : booking
-            );
-            setBookedEvents(updatedBookedEvents);
-            localStorage.setItem(LOCAL_STORAGE_BOOKED_EVENTS, JSON.stringify(updatedBookedEvents));
-        } catch (error) {
-            console.error('Error updating booking:', error.message || error.response?.data);
-            alert('Error updating booking. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     // Delete vendor booking
-    const deleteVendorBooking = async (index) => {
+    const deleteVendorBooking = async (vendorId) => {
         setLoading(true);
         try {
-            const vendor = bookedVendors[index];
-            const vendorId = vendor._id;
-
-            if (vendorId && !vendorId.startsWith('local-')) {
-                await axios.delete(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`);
-            }
-
-            const updatedBookedVendors = bookedVendors.filter((_, i) => i !== index);
-            setBookedVendors(updatedBookedVendors);
-            localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
+            await axios.delete(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`);
+            setBookedVendors(bookedVendors.filter((vendor) => vendor._id !== vendorId));
         } catch (error) {
             console.error('Error deleting vendor booking:', error.message || error.response?.data);
             alert('Error deleting vendor booking. Please try again.');
@@ -223,63 +150,44 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Update vendor booking
-    const updateVendorBooking = async (index, updatedBooking) => {
+    // Update event booking
+    const updateEventBooking = async (eventId, updatedBooking) => {
         setLoading(true);
         try {
-            const vendor = bookedVendors[index];
-            let vendorId = vendor._id;
-
-            if (!updatedBooking.vendorName || !updatedBooking.name || !updatedBooking.email || !updatedBooking.date) {
-                alert('All fields are required.');
-                setLoading(false);
-                return;
-            }
-
-            const payload = {
-                vendorName: updatedBooking.vendorName,
-                name: updatedBooking.name,
-                email: updatedBooking.email,
-                date: updatedBooking.date,
-                guests: updatedBooking.guests,
-            };
-
-            if (vendorId.startsWith('local-')) {
-                const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, payload);
-                vendorId = response.data._id;
-            } else {
-                await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, payload);
-            }
-
-            const updatedBookedVendors = bookedVendors.map((booking, i) =>
-                i === index ? { ...booking, ...updatedBooking, _id: vendorId } : booking
+            await axios.put(`${API_BASE_URL}/api/events/${eventId}`, updatedBooking);
+            const updatedEvents = bookedEvents.map((event) =>
+                event._id === eventId ? { ...event, ...updatedBooking } : event
             );
-            setBookedVendors(updatedBookedVendors);
-            localStorage.setItem(LOCAL_STORAGE_BOOKED_VENDORS, JSON.stringify(updatedBookedVendors));
+            setBookedEvents(updatedEvents);
         } catch (error) {
-            console.error('Error updating vendor booking:', error.response?.data || error.message);
+            console.error('Error updating booking:', error.message || error.response?.data);
+            alert('Error updating booking. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Update vendor booking
+    const updateVendorBooking = async (vendorId, updatedBooking) => {
+        setLoading(true);
+        try {
+            await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, updatedBooking);
+            const updatedVendors = bookedVendors.map((vendor) =>
+                vendor._id === vendorId ? { ...vendor, ...updatedBooking } : vendor
+            );
+            setBookedVendors(updatedVendors);
+        } catch (error) {
+            console.error('Error updating vendor booking:', error.message || error.response?.data);
             alert('Error updating vendor booking. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
-    // Confirm bookings
+    // Confirm bookings (sends email and clears local storage)
     const confirmBookings = async () => {
         setLoading(true);
         try {
-            await refreshAuthToken();
-            const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
-            if (!token) {
-                throw new Error('Token has expired, please login again');
-            }
-
-            const vendorsToSave = bookedVendors.filter(vendor => vendor._id.startsWith('local-'));
-            for (const vendor of vendorsToSave) {
-                const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, vendor);
-                vendor._id = response.data._id;
-            }
-
             const response = await axios.post(`${API_BASE_URL}/api/bookings/confirm-booking`, {
                 bookedEvents,
                 bookedVendors,
@@ -287,22 +195,11 @@ export const AppProvider = ({ children }) => {
 
             if (response.status === 200) {
                 navigate('/booking-confirmation');
-                setBookedEvents([]);
-                setBookedVendors([]);
-                localStorage.removeItem(LOCAL_STORAGE_BOOKED_EVENTS);
-                localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
-                setTimeout(() => {
-                    alert('Booking confirmed and email sent!');
-                }, 500);
+                alert('Booking confirmed and email sent!');
             }
         } catch (error) {
             console.error('Error confirming booking:', error.response?.data || error.message);
-            if (error.message.includes('Token has expired')) {
-                alert('Session expired. Please log in again.');
-                logoutUser();
-            } else {
-                alert('Error confirming booking. Please try again.');
-            }
+            alert('Error confirming booking. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -312,44 +209,16 @@ export const AppProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem(LOCAL_STORAGE_USER);
         const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
-        const storedBookedEvents = localStorage.getItem(LOCAL_STORAGE_BOOKED_EVENTS);
-        const storedBookedVendors = localStorage.getItem(LOCAL_STORAGE_BOOKED_VENDORS);
 
         if (storedUser && token) {
             try {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                fetchBookedVendors(); // Fetch vendor bookings after login or page refresh
+                fetchBookedData(); // Fetch event and vendor bookings after login
             } catch (error) {
                 console.error('Error parsing stored user:', error);
                 logoutUser();
-            }
-        }
-
-        if (storedBookedEvents) {
-            try {
-                const parsedBookedEvents = JSON.parse(storedBookedEvents).map(event => ({
-                    ...event,
-                    _id: event._id || `local-${Date.now()}-${Math.random()}` 
-                }));
-                setBookedEvents(parsedBookedEvents);
-            } catch (error) {
-                console.error('Error parsing booked events:', error);
-                localStorage.removeItem(LOCAL_STORAGE_BOOKED_EVENTS);
-            }
-        }
-
-        if (storedBookedVendors) {
-            try {
-                const parsedBookedVendors = JSON.parse(storedBookedVendors).map(vendor => ({
-                    ...vendor,
-                    _id: vendor._id || `local-${Date.now()}-${Math.random()}` 
-                }));
-                setBookedVendors(parsedBookedVendors);
-            } catch (error) {
-                console.error('Error parsing booked vendors:', error);
-                localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
             }
         }
 
@@ -372,11 +241,11 @@ export const AppProvider = ({ children }) => {
                 updateEventBooking,
                 deleteVendorBooking,
                 updateVendorBooking,
+                confirmBookings,
                 darkMode,
                 toggleDarkMode,
                 loginUser,
                 logoutUser,
-                confirmBookings,
                 loading,
             }}
         >
