@@ -135,6 +135,16 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Fetch all booked vendors after login or refresh
+    const fetchBookedVendors = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/api/vendors/bookings`);
+            setBookedVendors(response.data.bookedVendors); // Update state with fetched vendor bookings
+        } catch (error) {
+            console.error('Error fetching booked vendors:', error.response?.data || error.message);
+        }
+    };
+
     // Delete event booking
     const deleteEventBooking = async (index) => {
         setLoading(true);

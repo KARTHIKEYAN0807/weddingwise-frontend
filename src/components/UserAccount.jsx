@@ -177,7 +177,7 @@ const UserAccount = () => {
                                 <td>{new Date(event.date).toLocaleDateString()}</td>
                                 <td>
                                     <Button variant="warning" size="sm" onClick={() => handleEventEdit(index)}>Edit</Button>{' '}
-                                    <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>Delete</Button>
+                                    <Button variant="danger" size="sm" onClick={() => { setEditingEventIndex(index); setShowDeleteModal(true); }}>Delete</Button>
                                 </td>
                             </tr>
                         ))}
@@ -211,7 +211,7 @@ const UserAccount = () => {
                                 <td>{new Date(vendor.date).toLocaleDateString()}</td>
                                 <td>
                                     <Button variant="warning" size="sm" onClick={() => handleVendorEdit(index)}>Edit</Button>{' '}
-                                    <Button variant="danger" size="sm" onClick={() => setShowVendorDeleteModal(true)}>Delete</Button>
+                                    <Button variant="danger" size="sm" onClick={() => { setEditingVendorIndex(index); setShowVendorDeleteModal(true); }}>Delete</Button>
                                 </td>
                             </tr>
                         ))}
