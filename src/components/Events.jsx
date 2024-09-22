@@ -20,7 +20,9 @@ const Events = () => {
         setEvents(response.data);
       } catch (error) {
         console.error('Error fetching events:', error);
-        setErrorMessage(error.response?.data?.msg || 'Failed to load events.');
+        setErrorMessage(
+          error.response?.data?.msg || 'Something went wrong. Please try again later.'
+        );
       } finally {
         setLoading(false); // Stop loading after fetching or error
       }
@@ -67,7 +69,7 @@ const Events = () => {
         </div>
       ) : filteredEvents.length === 0 ? (
         <Alert variant="info" className="text-center">
-          No events found.
+          {searchTerm ? 'No events match your search criteria.' : 'No events available.'}
         </Alert>
       ) : (
         <Row>
@@ -76,7 +78,7 @@ const Events = () => {
               <Card>
                 <Card.Img
                   variant="top"
-                  src={event.img || '/images/default-event.jpg'}
+                  src={event.img || '/images/default-event.jpg'} // Ensure this image exists
                   alt={event.name}
                 />
                 <Card.Body>
