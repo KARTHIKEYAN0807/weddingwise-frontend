@@ -7,14 +7,15 @@ import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
-    const { id } = useParams(); // The event ID from the URL
-    const { user, addEventBooking } = useContext(AppContext);
+    const { id } = useParams(); // Event ID from the URL
+    const { user, addEventBooking } = useContext(AppContext); // Get the user and booking function from context
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
-    const [event, setEvent] = useState(null);
+    const [event, setEvent] = useState(null); // Initialize event state
 
+    // Fetch event details
     useEffect(() => {
         const fetchEvent = async () => {
             try {
@@ -30,16 +31,42 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
+    // Validation schema using Yup
     const BookingSchema = Yup.object().shape({
-        name: Yup.string().required('Your name is required'), // Updated from userName
-        email: Yup.string().email('Invalid email').required('Email is required'),
-        date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
-        guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'),
+        name: Yup.string().required('Your name is required'), // Validate name field
+        email: Yup.string().email('Invalid email').required('Email is required'), // Validate email field
+        date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'), // Ensure date is in the future
+        guests: Yup.number().min(1, 'At least 1 guest is required').required('Number of guests is required'), // Validate guests count
     });
+
+    // Ensure event ID is passed properly for booking
+    const handleBooking = async (values, resetForm) => {
+        try {
+            if (!event || !event._id) {
+                setErrorMessage("Event ID is missing.");
+                return;
+            }
+
+            await addEventBooking({
+                eventId: event._id, // Ensure event._id is passed here for the backend booking request
+                ...values, // Pass name, email, date, guests
+            });
+
+            setShowSuccess(true); // Show success message
+            setTimeout(() => {
+                navigate('/user-account'); // Redirect to user account page
+                resetForm(); // Reset form after successful booking
+            }, 2000);
+        } catch (error) {
+            console.error('Error booking event:', error.response?.data || error.message);
+            setErrorMessage('Error booking event. Please try again.'); // Display error if booking fails
+        }
+    };
 
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
+                // Show loading spinner while fetching event details
                 <div className="d-flex justify-content-center align-items-center">
                     <Spinner animation="border" />
                 </div>
@@ -47,69 +74,58 @@ const EventDetails = () => {
                 <>
                     <Row>
                         <Col md={8} className="mx-auto">
-                            <h2>{event.name}</h2>
+                            <h2>{event.name}</h2> {/* Display the event name */}
                             {event.img && (
-                                <img src={event.img} alt={event.name} className="img-fluid mb-4" />
+                                <img src={event.img} alt={event.name} className="img-fluid mb-4" /> // Display event image if available
                             )}
-                            <p>{event.description}</p>
+                            <p>{event.description}</p> {/* Display event description */}
                             <h4>Book This Event</h4>
+
+                            {/* Success message */}
                             {showSuccess && (
                                 <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
                                     Event booked successfully! Redirecting to your account...
                                 </Alert>
                             )}
+
+                            {/* Error message */}
                             {errorMessage && (
                                 <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
                                     {errorMessage}
                                 </Alert>
                             )}
+
+                            {/* Formik form to handle event booking */}
                             <Formik
                                 initialValues={{
-                                    name: user?.name || '',
-                                    email: user?.email || '',
+                                    name: user?.name || '', // Pre-fill name if user is logged in
+                                    email: user?.email || '', // Pre-fill email if user is logged in
                                     date: '',
-                                    guests: 1 // Default value for guests
+                                    guests: 1 // Default number of guests
                                 }}
                                 validationSchema={BookingSchema}
-                                onSubmit={async (values, { resetForm }) => {
-                                    try {
-                                        console.log('Booking values:', values); // Debug log to check values
-                                        await addEventBooking({
-                                            eventId: event._id, // Ensure event._id is passed
-                                            ...values, // Pass name, email, date, guests
-                                        });
-
-                                        setShowSuccess(true);
-                                        setTimeout(() => {
-                                            navigate('/user-account');
-                                            resetForm();
-                                        }, 2000);
-                                    } catch (error) {
-                                        console.error('Error booking event:', error.response?.data || error.message);
-                                        setErrorMessage('Error booking event. Please try again.');
-                                    }
-                                }}
+                                onSubmit={(values, { resetForm }) => handleBooking(values, resetForm)} // Call handleBooking on form submit
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Your Name</Form.Label>
-                                            <Field name="name" type="text" className="form-control" />
+                                            <Field name="name" type="text" className="form-control" /> {/* Name field */}
                                             <ErrorMessage name="name" component="div" className="text-danger" />
                                         </Form.Group>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Email</Form.Label>
-                                            <Field name="email" type="email" className="form-control" />
+                                            <Field name="email" type="email" className="form-control" /> {/* Email field */}
                                             <ErrorMessage name="email" component="div" className="text-danger" />
                                         </Form.Group>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Date of Event</Form.Label>
-                                            <Field name="date" type="date" className="form-control" />
+                                            <Field name="date" type="date" className="form-control" /> {/* Date field */}
                                             <ErrorMessage name="date" component="div" className="text-danger" />
                                         </Form.Group>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Number of Guests</Form.Label>
-                                            <Field name="guests" type="number" className="form-control" />
+                                            <Field name="guests" type="number" className="form-control" /> {/* Guests field */}
                                             <ErrorMessage name="guests" component="div" className="text-danger" />
                                         </Form.Group>
                                         <Button variant="primary" type="submit" className="w-100">
@@ -122,7 +138,7 @@ const EventDetails = () => {
                     </Row>
                 </>
             ) : (
-                <Alert variant="danger">Event not found.</Alert>
+                <Alert variant="danger">Event not found.</Alert> // Show error if event is not found
             )}
         </Container>
     );
