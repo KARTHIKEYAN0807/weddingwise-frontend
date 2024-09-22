@@ -7,7 +7,7 @@ import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
-    const { id } = useParams(); // The event ID from the URL
+    const { id } = useParams(); // Event ID from URL
     const { user, addEventBooking } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
@@ -30,8 +30,9 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
+    // Validation schema for booking
     const BookingSchema = Yup.object().shape({
-        eventName: Yup.string().required('Event name is required'), // Event name validation
+        eventName: Yup.string().required('Event name is required'),
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date().required('Date is required').min(new Date(), 'Date must be in the future'),
@@ -75,8 +76,11 @@ const EventDetails = () => {
                                 validationSchema={BookingSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {
+                                        // Ensure valid event ID
+                                        console.log('Event ID:', event._id);  // Log to verify the correct ID
+
                                         await addEventBooking({
-                                            eventId: event._id,
+                                            eventId: event._id,  // Use event._id as the eventId
                                             ...values,
                                         });
 
