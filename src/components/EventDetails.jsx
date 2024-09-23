@@ -17,14 +17,11 @@ const EventDetails = () => {
     const [submitting, setSubmitting] = useState(false);
     const [event, setEvent] = useState(null);
 
-    // Step 2: Fetch event details based on the event ID
+    // Fetch event details based on the event ID
     useEffect(() => {
         const fetchEvent = async () => {
             try {
-                // Log the event ID for debugging
-                console.log('Fetching event with ID:', id);
-
-                // API call to fetch event details
+                console.log('Fetching event with ID:', id); // Log event ID for debugging
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/events/${id}`);
                 if (response.data && response.data.data) {
                     setEvent(response.data.data);
@@ -37,11 +34,10 @@ const EventDetails = () => {
             }
             setLoading(false);
         };
-
         fetchEvent();
     }, [id]);
 
-    // Step 3: Define validation schema using Yup
+    // Define validation schema using Yup
     const BookingSchema = Yup.object().shape({
         eventName: Yup.string().required('Event name is required'),
         userName: Yup.string().required('Your name is required'),
@@ -54,7 +50,7 @@ const EventDetails = () => {
             .required('Number of guests is required'),
     });
 
-    // Step 4: Handle form submission to book the event
+    // Handle form submission to book the event
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
@@ -94,15 +90,16 @@ const EventDetails = () => {
                                 onSubmit={async (values, { resetForm }) => {
                                     setSubmitting(true);
                                     try {
-                                        // Step 5: Retrieve the token from localStorage
+                                        // Retrieve the token from localStorage
                                         const token = localStorage.getItem('authToken');
+                                        if (!token) {
+                                            throw new Error('Authentication token is missing.');
+                                        }
                                         console.log('Token:', token); // Log the token for debugging
 
-                                        // Step 6: Log the API URL to ensure eventId is passed correctly
                                         const bookingUrl = 'https://weddingwisebooking.onrender.com/api/events/book';
                                         console.log('Booking URL:', bookingUrl);
 
-                                        // Step 7: Make the API request to book the event
                                         const bookingResponse = await axios.post(
                                             bookingUrl,
                                             {
@@ -121,7 +118,6 @@ const EventDetails = () => {
                                             }
                                         );
 
-                                        // Handle successful booking
                                         if (bookingResponse.status === 201) {
                                             setShowSuccess(true);
                                             setTimeout(() => {
@@ -136,7 +132,7 @@ const EventDetails = () => {
                                         if (error.response) {
                                             console.error('Server response:', error.response.data);
                                         }
-                                        setErrorMessage('Error booking event. Please try again.');
+                                        setErrorMessage(error.message || 'Error booking event. Please try again.');
                                     }
                                     setSubmitting(false);
                                 }}

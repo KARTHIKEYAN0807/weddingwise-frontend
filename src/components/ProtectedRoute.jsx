@@ -5,9 +5,9 @@ import { Navigate, useLocation } from 'react-router-dom';
 // Helper function to validate token expiration
 const isTokenValid = (token) => {
   if (!token) return false;
-  
+
   try {
-    const decoded = JSON.parse(atob(token.split('.')[1]));
+    const decoded = JSON.parse(atob(token.split('.')[1])); // Decode the JWT token payload
     return decoded.exp > Date.now() / 1000; // Check if the token has expired
   } catch (error) {
     console.error('Error decoding token:', error);
@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children }) => {
     // If no user or no valid token, redirect to the login page
     if (!user || !token || !isTokenValid(token)) {
         console.log("User is not authenticated or token is invalid, redirecting to login");
-        return <Navigate to="/login" state={{ from: location }} />;
+        return <Navigate to="/login" state={{ from: location }} />; // Preserve the original route
     }
 
     // If the user is authenticated, render the children components (the protected content)
