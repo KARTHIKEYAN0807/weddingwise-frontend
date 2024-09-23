@@ -128,6 +128,7 @@ const UserAccount = () => {
             await deleteEventBooking(editingEventIndex);
             setShowDeleteModal(false);
             setFeedbackMessage('Event booking successfully deleted.');
+            setEditingEventIndex(null); // Reset after delete
         } catch (err) {
             setError('Error deleting the event booking. Please try again.');
         }
@@ -139,9 +140,25 @@ const UserAccount = () => {
             await deleteVendorBooking(editingVendorIndex);
             setShowVendorDeleteModal(false);
             setFeedbackMessage('Vendor booking successfully deleted.');
+            setEditingVendorIndex(null); // Reset after delete
         } catch (err) {
             setError('Error deleting the vendor booking. Please try again.');
         }
+    };
+
+    // Close modals and clear state
+    const handleCloseEventModal = () => {
+        setShowEventModal(false);
+        setEditEventData({ eventId: '', eventName: '', userName: '', email: '', guests: '', date: '' });
+        setFeedbackMessage('');
+        setError('');
+    };
+
+    const handleCloseVendorModal = () => {
+        setShowVendorModal(false);
+        setEditVendorData({ vendorName: '', userName: '', email: '', date: '', guests: '' });
+        setFeedbackMessage('');
+        setError('');
     };
 
     return (
@@ -229,7 +246,7 @@ const UserAccount = () => {
             </Button>
 
             {/* Modal for editing events */}
-            <Modal show={showEventModal} onHide={() => { setShowEventModal(false); setFeedbackMessage(''); setError(''); }}>
+            <Modal show={showEventModal} onHide={handleCloseEventModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Event Booking</Modal.Title>
                 </Modal.Header>
@@ -288,7 +305,7 @@ const UserAccount = () => {
             </Modal>
 
             {/* Modal for editing vendors */}
-            <Modal show={showVendorModal} onHide={() => { setShowVendorModal(false); setFeedbackMessage(''); setError(''); }}>
+            <Modal show={showVendorModal} onHide={handleCloseVendorModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Vendor Booking</Modal.Title>
                 </Modal.Header>

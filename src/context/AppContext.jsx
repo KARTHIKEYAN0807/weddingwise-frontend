@@ -10,8 +10,6 @@ const API_BASE_URL = 'https://weddingwisebooking.onrender.com';
 // Constants for localStorage keys
 const LOCAL_STORAGE_USER = 'currentUser';
 const LOCAL_STORAGE_TOKEN = 'authToken';
-const LOCAL_STORAGE_BOOKED_EVENTS = 'bookedEvents';
-const LOCAL_STORAGE_BOOKED_VENDORS = 'bookedVendors';
 const LOCAL_STORAGE_DARK_MODE = 'darkMode';
 
 export const AppProvider = ({ children }) => {
@@ -49,8 +47,6 @@ export const AppProvider = ({ children }) => {
         setBookedVendors([]);
         localStorage.removeItem(LOCAL_STORAGE_USER);
         localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-        localStorage.removeItem(LOCAL_STORAGE_BOOKED_EVENTS);
-        localStorage.removeItem(LOCAL_STORAGE_BOOKED_VENDORS);
         delete axios.defaults.headers.common['Authorization'];
         navigate('/login');
     };
@@ -73,12 +69,14 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Fetch booked events and vendors from the database
+    // Fetch booked events and vendors concurrently from the database
     const fetchBookedData = async () => {
         try {
             setLoading(true);
-            const eventResponse = await axios.get(`${API_BASE_URL}/api/events/bookings`);
-            const vendorResponse = await axios.get(`${API_BASE_URL}/api/vendors/bookings`);
+            const [eventResponse, vendorResponse] = await Promise.all([
+                axios.get(`${API_BASE_URL}/api/events/bookings`),
+                axios.get(`${API_BASE_URL}/api/vendors/bookings`),
+            ]);
             setBookedEvents(eventResponse.data.bookedEvents);
             setBookedVendors(vendorResponse.data.bookedVendors);
         } catch (error) {
@@ -220,9 +218,9 @@ export const AppProvider = ({ children }) => {
                 console.error('Error parsing stored user:', error);
                 logoutUser();
             }
+        } else {
+            setLoading(false); // Stop loading if no user is found
         }
-
-        setLoading(false);
     }, []);
 
     if (loading) {
