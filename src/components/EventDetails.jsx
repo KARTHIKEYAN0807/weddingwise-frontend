@@ -108,26 +108,48 @@ const EventDetails = () => {
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
+                                        {/* Event Name (Disabled) */}
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Event Name</Form.Label>
+                                            <Field
+                                                name="eventName"
+                                                type="text"
+                                                className="form-control"
+                                                value={event?.name || ''} // Pre-fill the event name from the event data
+                                                disabled
+                                            />
+                                            <ErrorMessage name="eventName" component="div" className="text-danger" />
+                                        </Form.Group>
+
+                                        {/* User's Name */}
                                         <Form.Group className="mb-3">
                                             <Form.Label>Your Name</Form.Label>
                                             <Field name="name" type="text" className="form-control" /> {/* Name field */}
                                             <ErrorMessage name="name" component="div" className="text-danger" />
                                         </Form.Group>
+
+                                        {/* User's Email */}
                                         <Form.Group className="mb-3">
                                             <Form.Label>Email</Form.Label>
                                             <Field name="email" type="email" className="form-control" /> {/* Email field */}
                                             <ErrorMessage name="email" component="div" className="text-danger" />
                                         </Form.Group>
+
+                                        {/* Date of Event */}
                                         <Form.Group className="mb-3">
                                             <Form.Label>Date of Event</Form.Label>
                                             <Field name="date" type="date" className="form-control" /> {/* Date field */}
                                             <ErrorMessage name="date" component="div" className="text-danger" />
                                         </Form.Group>
+
+                                        {/* Number of Guests */}
                                         <Form.Group className="mb-3">
                                             <Form.Label>Number of Guests</Form.Label>
                                             <Field name="guests" type="number" className="form-control" /> {/* Guests field */}
                                             <ErrorMessage name="guests" component="div" className="text-danger" />
                                         </Form.Group>
+
+                                        {/* Submit Button */}
                                         <Button variant="primary" type="submit" className="w-100">
                                             Book Now
                                         </Button>
