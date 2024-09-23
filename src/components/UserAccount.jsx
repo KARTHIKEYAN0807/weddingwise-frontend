@@ -115,7 +115,7 @@ const UserAccount = () => {
 
       const updatedData = { vendorName, userName, email, date, guests };
 
-      await updateVendorBooking(bookedVendors[editingVendorIndex]._id, updatedData); // Use the vendor ID for updating
+      await updateVendorBooking(bookedVendors[editingVendorIndex]._id, updatedData);
       setShowVendorModal(false);
       setFeedbackMessage('Vendor booking successfully updated.');
       setError('');
@@ -127,7 +127,7 @@ const UserAccount = () => {
   const confirmEventDelete = async () => {
     setDeletingEvent(true);
     try {
-      await deleteEventBooking(bookedEvents[editingEventIndex]._id); // Use the event ID for deletion
+      await deleteEventBooking(bookedEvents[editingEventIndex]._id);
       setShowDeleteModal(false);
       setFeedbackMessage('Event booking successfully deleted.');
       setEditingEventIndex(null);
@@ -141,7 +141,7 @@ const UserAccount = () => {
   const confirmVendorDelete = async () => {
     setDeletingVendor(true);
     try {
-      await deleteVendorBooking(bookedVendors[editingVendorIndex]._id); // Use the vendor ID for deletion
+      await deleteVendorBooking(bookedVendors[editingVendorIndex]._id);
       setShowVendorDeleteModal(false);
       setFeedbackMessage('Vendor booking successfully deleted.');
       setEditingVendorIndex(null);

@@ -21,6 +21,7 @@ export const AppProvider = ({ children }) => {
 
     const navigate = useNavigate();
 
+    // Save dark mode preference in localStorage when it changes
     useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_DARK_MODE, darkMode);
     }, [darkMode]);
@@ -33,7 +34,7 @@ export const AppProvider = ({ children }) => {
             localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(userData));
             localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            fetchBookedData();
+            fetchBookedData(); // Fetch bookings after login
         } else {
             console.error('Invalid token');
         }
@@ -56,8 +57,8 @@ export const AppProvider = ({ children }) => {
                 axios.get(`${API_BASE_URL}/api/events/bookings`),
                 axios.get(`${API_BASE_URL}/api/vendors/bookings`),
             ]);
-            setBookedEvents(eventResponse.data.bookedEvents);
-            setBookedVendors(vendorResponse.data.bookedVendors);
+            setBookedEvents(eventResponse.data.bookedEvents || []); // Handle potential undefined responses
+            setBookedVendors(vendorResponse.data.bookedVendors || []);
         } catch (error) {
             console.error('Error fetching bookings:', error.response?.data || error.message);
             alert('Failed to fetch bookings. Please try again later.');
@@ -102,7 +103,7 @@ export const AppProvider = ({ children }) => {
             await axios.delete(`${API_BASE_URL}/api/events/bookings/${eventId}`);
             setBookedEvents((prev) => prev.filter((event) => event._id !== eventId));
         } catch (error) {
-            console.error('Error deleting booking:', error.message || error.response?.data);
+            console.error('Error deleting event booking:', error.message || error.response?.data);
             alert('Error deleting booking. Please try again.');
         } finally {
             setLoading(false);
@@ -126,7 +127,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         try {
             const response = await axios.put(`${API_BASE_URL}/api/events/bookings/${eventId}`, updatedBooking);
-            setBookedEvents((prev) => 
+            setBookedEvents((prev) =>
                 prev.map((event) => (event._id === eventId ? response.data.data : event))
             );
         } catch (error) {
@@ -141,7 +142,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         try {
             const response = await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, updatedBooking);
-            setBookedVendors((prev) => 
+            setBookedVendors((prev) =>
                 prev.map((vendor) => (vendor._id === vendorId ? response.data.data : vendor))
             );
         } catch (error) {
@@ -152,6 +153,7 @@ export const AppProvider = ({ children }) => {
         }
     };
 
+    // Fetch user data and token from local storage and authenticate on mount
     useEffect(() => {
         const storedUser = localStorage.getItem(LOCAL_STORAGE_USER);
         const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
