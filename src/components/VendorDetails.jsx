@@ -34,7 +34,6 @@ const VendorDetails = () => {
         fetchVendor();
     }, [id]);
 
-    // Yup validation schema
     const BookingSchema = Yup.object().shape({
         vendorName: Yup.string().required('Vendor name is required'),
         userName: Yup.string().required('Your name is required'),
@@ -76,15 +75,14 @@ const VendorDetails = () => {
                             <Formik
                                 initialValues={{
                                     vendorName: vendor.name || 'Untitled Vendor',
-                                    userName: user?.name || '', // Auto-fill user's name
-                                    email: user?.email || '', // Auto-fill user's email
+                                    userName: user?.name || '',
+                                    email: user?.email || '',
                                     date: '',
                                     guests: ''
                                 }}
                                 validationSchema={BookingSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {
-                                        // Send booking details to the backend
                                         const bookingResponse = await axios.post('https://weddingwisebooking.onrender.com/api/vendors/book', {
                                             vendorName: values.vendorName,
                                             name: values.userName,

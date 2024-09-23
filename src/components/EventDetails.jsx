@@ -8,7 +8,7 @@ import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
     const { id } = useParams();
-    const { user } = useContext(AppContext); // Get the user from context
+    const { user } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -34,7 +34,6 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
-    // Yup validation schema
     const BookingSchema = Yup.object().shape({
         eventName: Yup.string().required('Event name is required'),
         userName: Yup.string().required('Your name is required'),
@@ -76,15 +75,14 @@ const EventDetails = () => {
                             <Formik
                                 initialValues={{
                                     eventName: event.name || 'Untitled Event',
-                                    userName: user?.name || '', // Auto-fill user's name
-                                    email: user?.email || '', // Auto-fill user's email
+                                    userName: user?.name || '',
+                                    email: user?.email || '',
                                     date: '',
                                     guests: ''
                                 }}
                                 validationSchema={BookingSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {
-                                        // Send booking details to the backend
                                         const bookingResponse = await axios.post('https://weddingwisebooking.onrender.com/api/events/book', {
                                             eventId: id,
                                             eventName: values.eventName,

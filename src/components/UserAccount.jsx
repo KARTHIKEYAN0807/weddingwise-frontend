@@ -27,7 +27,6 @@ const UserAccount = () => {
   const [deletingEvent, setDeletingEvent] = useState(false);
   const [deletingVendor, setDeletingVendor] = useState(false);
 
-  // Redirect if not logged in
   if (!user) {
     return (
       <Container className="mt-5">
@@ -38,7 +37,6 @@ const UserAccount = () => {
     );
   }
 
-  // Handle editing an event
   const handleEventEdit = (index) => {
     const eventToEdit = bookedEvents[index];
     setEditEventData({
@@ -53,7 +51,6 @@ const UserAccount = () => {
     setShowEventModal(true);
   };
 
-  // Handle editing a vendor
   const handleVendorEdit = (index) => {
     const vendorToEdit = bookedVendors[index];
     setEditVendorData({
@@ -67,7 +64,6 @@ const UserAccount = () => {
     setShowVendorModal(true);
   };
 
-  // Save changes to an event booking
   const handleSaveEventChanges = async (e) => {
     e.preventDefault();
     try {
@@ -101,7 +97,6 @@ const UserAccount = () => {
     }
   };
 
-  // Save changes to a vendor booking
   const handleSaveVendorChanges = async (e) => {
     e.preventDefault();
     try {
@@ -123,14 +118,13 @@ const UserAccount = () => {
     }
   };
 
-  // Confirm event deletion
   const confirmEventDelete = async () => {
     setDeletingEvent(true);
     try {
       await deleteEventBooking(editingEventIndex);
       setShowDeleteModal(false);
       setFeedbackMessage('Event booking successfully deleted.');
-      setEditingEventIndex(null); // Reset after delete
+      setEditingEventIndex(null);
     } catch (err) {
       setError('Error deleting the event booking. Please try again.');
     } finally {
@@ -138,14 +132,13 @@ const UserAccount = () => {
     }
   };
 
-  // Confirm vendor deletion
   const confirmVendorDelete = async () => {
     setDeletingVendor(true);
     try {
       await deleteVendorBooking(editingVendorIndex);
       setShowVendorDeleteModal(false);
       setFeedbackMessage('Vendor booking successfully deleted.');
-      setEditingVendorIndex(null); // Reset after delete
+      setEditingVendorIndex(null);
     } catch (err) {
       setError('Error deleting the vendor booking. Please try again.');
     } finally {
@@ -153,7 +146,6 @@ const UserAccount = () => {
     }
   };
 
-  // Close modals and clear state
   const handleCloseEventModal = () => {
     setShowEventModal(false);
     setEditEventData({ eventId: '', eventName: '', userName: '', email: '', guests: '', date: '' });
@@ -175,7 +167,6 @@ const UserAccount = () => {
       {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
       {feedbackMessage && <Alert variant="success" className="mt-3">{feedbackMessage}</Alert>}
 
-      {/* Booked Events Section */}
       <h2>Booked Events</h2>
       {bookedEvents.length === 0 ? (
         <Alert variant="info" className="mt-3">No events booked yet.</Alert>
@@ -209,7 +200,6 @@ const UserAccount = () => {
         </Table>
       )}
 
-      {/* Booked Vendors Section */}
       <h2>Booked Vendors</h2>
       {bookedVendors.length === 0 ? (
         <Alert variant="info" className="mt-3">No vendors booked yet.</Alert>
@@ -243,7 +233,6 @@ const UserAccount = () => {
         </Table>
       )}
 
-      {/* Confirm Bookings Button */}
       <Button variant="success" onClick={() => confirmBookings()} className="mt-3" disabled={loading}>
         {loading ? (
           <Spinner animation="border" size="sm" />
@@ -252,8 +241,6 @@ const UserAccount = () => {
         )}
       </Button>
 
-      {/* Modals for Editing Events and Vendors */}
-      {/* Edit Event Modal */}
       <Modal show={showEventModal} onHide={handleCloseEventModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Event Booking</Modal.Title>
@@ -312,7 +299,6 @@ const UserAccount = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Edit Vendor Modal */}
       <Modal show={showVendorModal} onHide={handleCloseVendorModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Vendor Booking</Modal.Title>
@@ -371,7 +357,6 @@ const UserAccount = () => {
         </Modal.Body>
       </Modal>
 
-      {/* Modal for deleting events */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
@@ -389,7 +374,6 @@ const UserAccount = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal for deleting vendors */}
       <Modal show={showVendorDeleteModal} onHide={() => setShowVendorDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Vendor Delete</Modal.Title>
