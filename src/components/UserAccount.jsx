@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Container, Table, Button, Form, Modal, Alert, Spinner } from 'react-bootstrap';
+import { Container, Table, Button, Form, Modal, Alert } from 'react-bootstrap';
 import { AppContext } from '../context/AppContext';
 
 const UserAccount = () => {
@@ -18,8 +18,21 @@ const UserAccount = () => {
   const [editingVendorIndex, setEditingVendorIndex] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showVendorModal, setShowVendorModal] = useState(false);
-  const [editEventData, setEditEventData] = useState({ eventId: '', eventName: '', userName: '', email: '', guests: '', date: '' });
-  const [editVendorData, setEditVendorData] = useState({ vendorName: '', userName: '', email: '', date: '', guests: '' });
+  const [editEventData, setEditEventData] = useState({
+    eventId: '',
+    eventName: '',
+    userName: '',
+    email: '',
+    guests: '',
+    date: ''
+  });
+  const [editVendorData, setEditVendorData] = useState({
+    vendorName: '',
+    userName: '',
+    email: '',
+    date: '',
+    guests: ''
+  });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -81,7 +94,7 @@ const UserAccount = () => {
 
       const updatedData = { eventId, eventName, userName, email, guests: parseInt(guests, 10), date };
 
-      await updateEventBooking(editingEventIndex, updatedData);
+      await updateEventBooking(eventId, updatedData); // Use eventId for updating
       setShowEventModal(false);
       setFeedbackMessage('Event booking successfully updated.');
       setError('');
@@ -102,7 +115,7 @@ const UserAccount = () => {
 
       const updatedData = { vendorName, userName, email, date, guests };
 
-      await updateVendorBooking(editingVendorIndex, updatedData);
+      await updateVendorBooking(editingVendorIndex, updatedData); // Use editingVendorIndex for updating
       setShowVendorModal(false);
       setFeedbackMessage('Vendor booking successfully updated.');
       setError('');
