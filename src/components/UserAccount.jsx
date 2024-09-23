@@ -24,6 +24,8 @@ const UserAccount = () => {
   const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [error, setError] = useState('');
+  const [deletingEvent, setDeletingEvent] = useState(false);
+  const [deletingVendor, setDeletingVendor] = useState(false);
 
   // Redirect if not logged in
   if (!user) {
@@ -123,6 +125,7 @@ const UserAccount = () => {
 
   // Confirm event deletion
   const confirmEventDelete = async () => {
+    setDeletingEvent(true);
     try {
       await deleteEventBooking(editingEventIndex);
       setShowDeleteModal(false);
@@ -130,11 +133,14 @@ const UserAccount = () => {
       setEditingEventIndex(null); // Reset after delete
     } catch (err) {
       setError('Error deleting the event booking. Please try again.');
+    } finally {
+      setDeletingEvent(false);
     }
   };
 
   // Confirm vendor deletion
   const confirmVendorDelete = async () => {
+    setDeletingVendor(true);
     try {
       await deleteVendorBooking(editingVendorIndex);
       setShowVendorDeleteModal(false);
@@ -142,6 +148,8 @@ const UserAccount = () => {
       setEditingVendorIndex(null); // Reset after delete
     } catch (err) {
       setError('Error deleting the vendor booking. Please try again.');
+    } finally {
+      setDeletingVendor(false);
     }
   };
 
@@ -375,8 +383,8 @@ const UserAccount = () => {
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={confirmEventDelete}>
-            Delete
+          <Button variant="danger" onClick={confirmEventDelete} disabled={deletingEvent}>
+            {deletingEvent ? 'Deleting...' : 'Delete'}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -393,8 +401,8 @@ const UserAccount = () => {
           <Button variant="secondary" onClick={() => setShowVendorDeleteModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={confirmVendorDelete}>
-            Delete
+          <Button variant="danger" onClick={confirmVendorDelete} disabled={deletingVendor}>
+            {deletingVendor ? 'Deleting...' : 'Delete'}
           </Button>
         </Modal.Footer>
       </Modal>
