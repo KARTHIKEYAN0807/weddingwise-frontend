@@ -7,19 +7,24 @@ import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
-    const { id } = useParams();
-    const { user } = useContext(AppContext);
+    const { id } = useParams(); // id from the URL (eventId)
+    const { user } = useContext(AppContext); // User details from context
     const navigate = useNavigate();
+
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [event, setEvent] = useState(null);
 
-    // Fetch event details based on the event ID
+    // Step 2: Fetch event details based on the event ID
     useEffect(() => {
         const fetchEvent = async () => {
             try {
+                // Log the event ID for debugging
+                console.log('Fetching event with ID:', id);
+
+                // API call to fetch event details
                 const response = await axios.get(`https://weddingwisebooking.onrender.com/api/events/${id}`);
                 if (response.data && response.data.data) {
                     setEvent(response.data.data);
@@ -36,7 +41,7 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
-    // Define validation schema using Yup
+    // Step 3: Define validation schema using Yup
     const BookingSchema = Yup.object().shape({
         eventName: Yup.string().required('Event name is required'),
         userName: Yup.string().required('Your name is required'),
@@ -49,50 +54,7 @@ const EventDetails = () => {
             .required('Number of guests is required'),
     });
 
-    const handleSubmitForm = async (values, resetForm) => {
-        setSubmitting(true);
-        try {
-            const token = localStorage.getItem('token'); // Retrieve the token from localStorage
-
-            // Make the booking request
-            const bookingResponse = await axios.post(
-                'https://weddingwisebooking.onrender.com/api/events/book',
-                {
-                    eventId: id,
-                    eventName: values.eventName,
-                    name: values.userName,
-                    email: values.email,
-                    date: values.date,
-                    guests: values.guests,
-                    userId: user?._id, // Include user ID
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Pass the token in headers
-                    },
-                }
-            );
-
-            // Handle successful booking
-            if (bookingResponse.status === 201) {
-                setShowSuccess(true);
-                setTimeout(() => {
-                    navigate('/user-account');
-                }, 2000);
-                resetForm();
-            } else {
-                setErrorMessage('Error booking event. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error booking event:', error);
-            if (error.response) {
-                console.error('Server response:', error.response.data);
-            }
-            setErrorMessage('Error booking event. Please try again.');
-        }
-        setSubmitting(false);
-    };
-
+    // Step 4: Handle form submission to book the event
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
@@ -129,7 +91,55 @@ const EventDetails = () => {
                                     guests: ''
                                 }}
                                 validationSchema={BookingSchema}
-                                onSubmit={(values, { resetForm }) => handleSubmitForm(values, resetForm)}
+                                onSubmit={async (values, { resetForm }) => {
+                                    setSubmitting(true);
+                                    try {
+                                        // Step 5: Retrieve the token from localStorage
+                                        const token = localStorage.getItem('authToken');
+                                        console.log('Token:', token); // Log the token for debugging
+
+                                        // Step 6: Log the API URL to ensure eventId is passed correctly
+                                        const bookingUrl = 'https://weddingwisebooking.onrender.com/api/events/book';
+                                        console.log('Booking URL:', bookingUrl);
+
+                                        // Step 7: Make the API request to book the event
+                                        const bookingResponse = await axios.post(
+                                            bookingUrl,
+                                            {
+                                                eventId: id,
+                                                eventName: values.eventName,
+                                                name: values.userName,
+                                                email: values.email,
+                                                date: values.date,
+                                                guests: values.guests,
+                                                userId: user?._id, // Include user ID
+                                            },
+                                            {
+                                                headers: {
+                                                    Authorization: `Bearer ${token}`, // Pass the token in headers
+                                                },
+                                            }
+                                        );
+
+                                        // Handle successful booking
+                                        if (bookingResponse.status === 201) {
+                                            setShowSuccess(true);
+                                            setTimeout(() => {
+                                                navigate('/user-account');
+                                            }, 2000);
+                                            resetForm();
+                                        } else {
+                                            setErrorMessage('Error booking event. Please try again.');
+                                        }
+                                    } catch (error) {
+                                        console.error('Error booking event:', error);
+                                        if (error.response) {
+                                            console.error('Server response:', error.response.data);
+                                        }
+                                        setErrorMessage('Error booking event. Please try again.');
+                                    }
+                                    setSubmitting(false);
+                                }}
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
