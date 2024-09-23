@@ -16,6 +16,7 @@ const EventDetails = () => {
     const [submitting, setSubmitting] = useState(false);
     const [event, setEvent] = useState(null);
 
+    // Fetch event details based on the event ID
     useEffect(() => {
         const fetchEvent = async () => {
             try {
@@ -35,6 +36,7 @@ const EventDetails = () => {
         fetchEvent();
     }, [id]);
 
+    // Define validation schema using Yup
     const BookingSchema = Yup.object().shape({
         eventName: Yup.string().required('Event name is required'),
         userName: Yup.string().required('Your name is required'),
@@ -86,8 +88,9 @@ const EventDetails = () => {
                                 onSubmit={async (values, { resetForm }) => {
                                     setSubmitting(true);
                                     try {
-                                        const token = localStorage.getItem('token'); // Retrieve the token
+                                        const token = localStorage.getItem('token'); // Retrieve the token from localStorage
 
+                                        // Make the booking request
                                         const bookingResponse = await axios.post(
                                             'https://weddingwisebooking.onrender.com/api/events/book',
                                             {
@@ -97,7 +100,7 @@ const EventDetails = () => {
                                                 email: values.email,
                                                 date: values.date,
                                                 guests: values.guests,
-                                                userId: user?._id // Include user ID here
+                                                userId: user?._id, // Include user ID
                                             },
                                             {
                                                 headers: {
@@ -106,6 +109,7 @@ const EventDetails = () => {
                                             }
                                         );
 
+                                        // Handle successful booking
                                         if (bookingResponse.status === 201) {
                                             setShowSuccess(true);
                                             setTimeout(() => {

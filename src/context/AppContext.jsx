@@ -51,8 +51,8 @@ export const AppProvider = ({ children }) => {
     };
 
     const fetchBookedData = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
             const [eventResponse, vendorResponse] = await Promise.all([
                 axios.get(`${API_BASE_URL}/api/events/bookings`),
                 axios.get(`${API_BASE_URL}/api/vendors/bookings`),
@@ -172,6 +172,11 @@ export const AppProvider = ({ children }) => {
         } else {
             setLoading(false);
         }
+
+        // Cleanup function (optional)
+        return () => {
+            setLoading(false); // In case of unmount
+        };
     }, []);
 
     if (loading) {
