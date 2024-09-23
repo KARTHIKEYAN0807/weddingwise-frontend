@@ -94,7 +94,7 @@ const UserAccount = () => {
 
       const updatedData = { eventId, eventName, userName, email, guests: parseInt(guests, 10), date };
 
-      await updateEventBooking(eventId, updatedData); // Use eventId for updating
+      await updateEventBooking(eventId, updatedData);
       setShowEventModal(false);
       setFeedbackMessage('Event booking successfully updated.');
       setError('');
@@ -115,7 +115,7 @@ const UserAccount = () => {
 
       const updatedData = { vendorName, userName, email, date, guests };
 
-      await updateVendorBooking(editingVendorIndex, updatedData); // Use editingVendorIndex for updating
+      await updateVendorBooking(bookedVendors[editingVendorIndex]._id, updatedData); // Use the vendor ID for updating
       setShowVendorModal(false);
       setFeedbackMessage('Vendor booking successfully updated.');
       setError('');
@@ -127,7 +127,7 @@ const UserAccount = () => {
   const confirmEventDelete = async () => {
     setDeletingEvent(true);
     try {
-      await deleteEventBooking(editingEventIndex);
+      await deleteEventBooking(bookedEvents[editingEventIndex]._id); // Use the event ID for deletion
       setShowDeleteModal(false);
       setFeedbackMessage('Event booking successfully deleted.');
       setEditingEventIndex(null);
@@ -141,7 +141,7 @@ const UserAccount = () => {
   const confirmVendorDelete = async () => {
     setDeletingVendor(true);
     try {
-      await deleteVendorBooking(editingVendorIndex);
+      await deleteVendorBooking(bookedVendors[editingVendorIndex]._id); // Use the vendor ID for deletion
       setShowVendorDeleteModal(false);
       setFeedbackMessage('Vendor booking successfully deleted.');
       setEditingVendorIndex(null);
@@ -239,6 +239,7 @@ const UserAccount = () => {
         </Table>
       )}
 
+      {/* Event Edit Modal */}
       <Modal show={showEventModal} onHide={handleCloseEventModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Event Booking</Modal.Title>
@@ -297,6 +298,7 @@ const UserAccount = () => {
         </Modal.Body>
       </Modal>
 
+      {/* Vendor Edit Modal */}
       <Modal show={showVendorModal} onHide={handleCloseVendorModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Vendor Booking</Modal.Title>
@@ -355,6 +357,7 @@ const UserAccount = () => {
         </Modal.Body>
       </Modal>
 
+      {/* Delete Confirmation Modals */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>

@@ -49,23 +49,6 @@ export const AppProvider = ({ children }) => {
         navigate('/login');
     };
 
-    const refreshAuthToken = async () => {
-        try {
-            const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
-            if (!token) throw new Error('No token found');
-
-            const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, { token });
-            const newToken = response.data.token;
-            localStorage.setItem(LOCAL_STORAGE_TOKEN, newToken);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-            return newToken;
-        } catch (error) {
-            console.error('Error refreshing token:', error.message || error.response?.data);
-            logoutUser();
-            return null;
-        }
-    };
-
     const fetchBookedData = async () => {
         try {
             setLoading(true);
@@ -77,6 +60,7 @@ export const AppProvider = ({ children }) => {
             setBookedVendors(vendorResponse.data.bookedVendors);
         } catch (error) {
             console.error('Error fetching bookings:', error.response?.data || error.message);
+            alert('Failed to fetch bookings. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -90,8 +74,7 @@ export const AppProvider = ({ children }) => {
 
         try {
             const response = await axios.post(`${API_BASE_URL}/api/events/book`, booking);
-            const savedEventBooking = response.data.data;
-            setBookedEvents([...bookedEvents, savedEventBooking]);
+            setBookedEvents((prev) => [...prev, response.data.data]);
         } catch (error) {
             console.error('Error booking event:', error.response?.data || error.message);
             alert('Error booking event. Please try again.');
@@ -106,8 +89,7 @@ export const AppProvider = ({ children }) => {
 
         try {
             const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, booking);
-            const savedVendorBooking = response.data.data;
-            setBookedVendors([...bookedVendors, savedVendorBooking]);
+            setBookedVendors((prev) => [...prev, response.data.data]);
         } catch (error) {
             console.error('Error booking vendor:', error.response?.data || error.message);
             alert('Error booking vendor. Please try again.');
@@ -118,7 +100,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         try {
             await axios.delete(`${API_BASE_URL}/api/events/bookings/${eventId}`);
-            setBookedEvents(bookedEvents.filter((event) => event._id !== eventId));
+            setBookedEvents((prev) => prev.filter((event) => event._id !== eventId));
         } catch (error) {
             console.error('Error deleting booking:', error.message || error.response?.data);
             alert('Error deleting booking. Please try again.');
@@ -131,7 +113,7 @@ export const AppProvider = ({ children }) => {
         setLoading(true);
         try {
             await axios.delete(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`);
-            setBookedVendors(bookedVendors.filter((vendor) => vendor._id !== vendorId));
+            setBookedVendors((prev) => prev.filter((vendor) => vendor._id !== vendorId));
         } catch (error) {
             console.error('Error deleting vendor booking:', error.message || error.response?.data);
             alert('Error deleting vendor booking. Please try again.');
@@ -143,11 +125,10 @@ export const AppProvider = ({ children }) => {
     const updateEventBooking = async (eventId, updatedBooking) => {
         setLoading(true);
         try {
-            await axios.put(`${API_BASE_URL}/api/events/bookings/${eventId}`, updatedBooking);
-            const updatedEvents = bookedEvents.map((event) =>
-                event._id === eventId ? { ...event, ...updatedBooking } : event
+            const response = await axios.put(`${API_BASE_URL}/api/events/bookings/${eventId}`, updatedBooking);
+            setBookedEvents((prev) => 
+                prev.map((event) => (event._id === eventId ? response.data.data : event))
             );
-            setBookedEvents(updatedEvents);
         } catch (error) {
             console.error('Error updating booking:', error.message || error.response?.data);
             alert('Error updating booking. Please try again.');
@@ -159,34 +140,13 @@ export const AppProvider = ({ children }) => {
     const updateVendorBooking = async (vendorId, updatedBooking) => {
         setLoading(true);
         try {
-            await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, updatedBooking);
-            const updatedVendors = bookedVendors.map((vendor) =>
-                vendor._id === vendorId ? { ...vendor, ...updatedBooking } : vendor
+            const response = await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, updatedBooking);
+            setBookedVendors((prev) => 
+                prev.map((vendor) => (vendor._id === vendorId ? response.data.data : vendor))
             );
-            setBookedVendors(updatedVendors);
         } catch (error) {
             console.error('Error updating vendor booking:', error.message || error.response?.data);
             alert('Error updating vendor booking. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const confirmBookings = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/bookings/confirm-booking`, {
-                bookedEvents,
-                bookedVendors,
-            });
-
-            if (response.status === 200) {
-                navigate('/booking-confirmation');
-                alert('Booking confirmed and email sent!');
-            }
-        } catch (error) {
-            console.error('Error confirming booking:', error.response?.data || error.message);
-            alert('Error confirming booking. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -227,7 +187,6 @@ export const AppProvider = ({ children }) => {
                 updateEventBooking,
                 deleteVendorBooking,
                 updateVendorBooking,
-                confirmBookings,
                 darkMode,
                 toggleDarkMode,
                 loginUser,
