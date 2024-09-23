@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
+import { Container, Form, Button, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -13,6 +13,7 @@ const EventDetails = () => {
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
     const [event, setEvent] = useState(null);
 
     useEffect(() => {
@@ -49,8 +50,9 @@ const EventDetails = () => {
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
-                <div className="loading-container">
-                    <div className="loading-text">Loading...</div>
+                <div className="loading-container text-center">
+                    <Spinner animation="border" variant="primary" />
+                    <div className="loading-text mt-2">Loading...</div>
                 </div>
             ) : (
                 event ? (
@@ -82,16 +84,27 @@ const EventDetails = () => {
                                 }}
                                 validationSchema={BookingSchema}
                                 onSubmit={async (values, { resetForm }) => {
+                                    setSubmitting(true);
                                     try {
-                                        const bookingResponse = await axios.post('https://weddingwisebooking.onrender.com/api/events/book', {
-                                            eventId: id,
-                                            eventName: values.eventName,
-                                            name: values.userName,
-                                            email: values.email,
-                                            date: values.date,
-                                            guests: values.guests,
-                                            userId: user?._id // Include user ID here
-                                        });
+                                        const token = localStorage.getItem('token'); // Retrieve the token
+
+                                        const bookingResponse = await axios.post(
+                                            'https://weddingwisebooking.onrender.com/api/events/book',
+                                            {
+                                                eventId: id,
+                                                eventName: values.eventName,
+                                                name: values.userName,
+                                                email: values.email,
+                                                date: values.date,
+                                                guests: values.guests,
+                                                userId: user?._id // Include user ID here
+                                            },
+                                            {
+                                                headers: {
+                                                    Authorization: `Bearer ${token}`, // Pass the token in headers
+                                                },
+                                            }
+                                        );
 
                                         if (bookingResponse.status === 201) {
                                             setShowSuccess(true);
@@ -109,6 +122,7 @@ const EventDetails = () => {
                                         }
                                         setErrorMessage('Error booking event. Please try again.');
                                     }
+                                    setSubmitting(false);
                                 }}
                             >
                                 {({ handleSubmit }) => (
@@ -138,8 +152,8 @@ const EventDetails = () => {
                                             <Field name="guests" type="number" className="form-control" />
                                             <ErrorMessage name="guests" component="div" className="text-danger" />
                                         </div>
-                                        <Button variant="primary" type="submit" className="w-100">
-                                            Book Now
+                                        <Button variant="primary" type="submit" className="w-100" disabled={submitting}>
+                                            {submitting ? 'Booking...' : 'Book Now'}
                                         </Button>
                                     </Form>
                                 )}

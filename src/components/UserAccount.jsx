@@ -11,7 +11,7 @@ const UserAccount = () => {
     updateEventBooking,
     deleteVendorBooking,
     updateVendorBooking,
-    loading
+    loading,
   } = useContext(AppContext);
 
   const [editingEventIndex, setEditingEventIndex] = useState(null);
@@ -62,6 +62,7 @@ const UserAccount = () => {
     });
     setEditingEventIndex(index);
     setShowEventModal(true);
+    setError(''); // Reset error when opening the edit modal
   };
 
   const handleVendorEdit = (index) => {
@@ -75,6 +76,7 @@ const UserAccount = () => {
     });
     setEditingVendorIndex(index);
     setShowVendorModal(true);
+    setError(''); // Reset error when opening the edit modal
   };
 
   const handleSaveEventChanges = async (e) => {

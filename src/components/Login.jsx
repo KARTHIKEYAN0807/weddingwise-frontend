@@ -8,8 +8,8 @@ import { AppContext } from '../context/AppContext';
 
 // Validation schema for login form
 const LoginSchema = Yup.object().shape({
-    email: Yup.string().email('Invalid email').required('Required'),
-    password: Yup.string().min(6, 'Too Short!').required('Required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string().min(6, 'Password is too short').required('Password is required'),
 });
 
 const Login = () => {
