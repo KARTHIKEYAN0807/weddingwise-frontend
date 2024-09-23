@@ -15,12 +15,10 @@ const UserAccount = () => {
         loading
     } = useContext(AppContext);
 
-    const [editingEventIndex, setEditingEventIndex] = useState(null);
-    const [editingVendorIndex, setEditingVendorIndex] = useState(null);
+    const [editingEvent, setEditingEvent] = useState(null);
+    const [editingVendor, setEditingVendor] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ eventId: '', eventName: '', userName: '', email: '', guests: '', date: '' });
-    const [editVendorData, setEditVendorData] = useState({ vendorName: '', userName: '', email: '', date: '', guests: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
     const [feedbackMessage, setFeedbackMessage] = useState('');
@@ -38,31 +36,14 @@ const UserAccount = () => {
     }
 
     // Handle editing an event
-    const handleEventEdit = (index) => {
-        const eventToEdit = bookedEvents[index];
-        setEditEventData({
-            eventId: eventToEdit._id || '',
-            eventName: eventToEdit.name || 'Untitled Event',
-            userName: eventToEdit.userName || user.name || '',
-            email: eventToEdit.email || user.email || '',
-            guests: eventToEdit.guests || '',
-            date: eventToEdit.date || ''
-        });
-        setEditingEventIndex(index);
+    const handleEventEdit = (event) => {
+        setEditingEvent(event);
         setShowEventModal(true);
     };
 
     // Handle editing a vendor
-    const handleVendorEdit = (index) => {
-        const vendorToEdit = bookedVendors[index];
-        setEditVendorData({
-            vendorName: vendorToEdit.vendorName || '',
-            userName: vendorToEdit.userName || user.name || '',
-            email: vendorToEdit.email || '',
-            date: vendorToEdit.date || '',
-            guests: vendorToEdit.guests || ''
-        });
-        setEditingVendorIndex(index);
+    const handleVendorEdit = (vendor) => {
+        setEditingVendor(vendor);
         setShowVendorModal(true);
     };
 
@@ -70,28 +51,14 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            const { eventId, eventName, userName, email, guests, date } = editEventData;
-
-            if (!eventId || !eventName || !userName || !email || !guests || !date) {
-                setError('All fields, including the event name, user name, email, guests, and date, are required.');
+            if (!editingEvent.name || !editingEvent.email || !editingEvent.guests || !editingEvent.date) {
+                setError('All fields, including event name, email, guests, and date, are required.');
                 return;
             }
 
-            if (parseInt(guests, 10) <= 0) {
-                setError('Guests must be a valid positive number.');
-                return;
-            }
+            const updatedData = { ...editingEvent };
 
-            const updatedData = {
-                eventId,
-                eventName,
-                userName,
-                email,
-                guests: parseInt(guests, 10),
-                date
-            };
-
-            await updateEventBooking(editingEventIndex, updatedData);
+            await updateEventBooking(editingEvent._id, updatedData);
             setShowEventModal(false);
             setFeedbackMessage('Event booking successfully updated.');
             setError('');
@@ -104,16 +71,14 @@ const UserAccount = () => {
     const handleSaveVendorChanges = async (e) => {
         e.preventDefault();
         try {
-            const { vendorName, userName, email, date, guests } = editVendorData;
-
-            if (!vendorName || !userName || !email || !date || !guests) {
-                setError('All fields are required for the vendor, including the number of guests and booking date.');
+            if (!editingVendor.vendorName || !editingVendor.email || !editingVendor.date || !editingVendor.guests) {
+                setError('All fields are required for the vendor, including vendor name, email, guests, and date.');
                 return;
             }
 
-            const updatedData = { vendorName, userName, email, date, guests };
+            const updatedData = { ...editingVendor };
 
-            await updateVendorBooking(editingVendorIndex, updatedData);
+            await updateVendorBooking(editingVendor._id, updatedData);
             setShowVendorModal(false);
             setFeedbackMessage('Vendor booking successfully updated.');
             setError('');
@@ -125,10 +90,10 @@ const UserAccount = () => {
     // Confirm event deletion
     const confirmEventDelete = async () => {
         try {
-            await deleteEventBooking(editingEventIndex);
+            await deleteEventBooking(editingEvent._id);
             setShowDeleteModal(false);
             setFeedbackMessage('Event booking successfully deleted.');
-            setEditingEventIndex(null); // Reset after delete
+            setEditingEvent(null);
         } catch (err) {
             setError('Error deleting the event booking. Please try again.');
         }
@@ -137,26 +102,26 @@ const UserAccount = () => {
     // Confirm vendor deletion
     const confirmVendorDelete = async () => {
         try {
-            await deleteVendorBooking(editingVendorIndex);
+            await deleteVendorBooking(editingVendor._id);
             setShowVendorDeleteModal(false);
             setFeedbackMessage('Vendor booking successfully deleted.');
-            setEditingVendorIndex(null); // Reset after delete
+            setEditingVendor(null);
         } catch (err) {
             setError('Error deleting the vendor booking. Please try again.');
         }
     };
 
-    // Close modals and clear state
+    // Close modals and reset state
     const handleCloseEventModal = () => {
         setShowEventModal(false);
-        setEditEventData({ eventId: '', eventName: '', userName: '', email: '', guests: '', date: '' });
+        setEditingEvent(null);
         setFeedbackMessage('');
         setError('');
     };
 
     const handleCloseVendorModal = () => {
         setShowVendorModal(false);
-        setEditVendorData({ vendorName: '', userName: '', email: '', date: '', guests: '' });
+        setEditingVendor(null);
         setFeedbackMessage('');
         setError('');
     };
@@ -185,16 +150,16 @@ const UserAccount = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {bookedEvents.map((event, index) => (
-                            <tr key={`event-${index}`}>
+                        {bookedEvents.map((event) => (
+                            <tr key={event._id}>
                                 <td>{event.name || 'Untitled Event'}</td>
                                 <td>{event.userName}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
                                 <td>{new Date(event.date).toLocaleDateString()}</td>
                                 <td>
-                                    <Button variant="warning" size="sm" onClick={() => handleEventEdit(index)}>Edit</Button>{' '}
-                                    <Button variant="danger" size="sm" onClick={() => { setEditingEventIndex(index); setShowDeleteModal(true); }}>Delete</Button>
+                                    <Button variant="warning" size="sm" onClick={() => handleEventEdit(event)}>Edit</Button>{' '}
+                                    <Button variant="danger" size="sm" onClick={() => { setEditingEvent(event); setShowDeleteModal(true); }}>Delete</Button>
                                 </td>
                             </tr>
                         ))}
@@ -219,16 +184,16 @@ const UserAccount = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {bookedVendors.map((vendor, index) => (
-                            <tr key={`vendor-${index}`}>
+                        {bookedVendors.map((vendor) => (
+                            <tr key={vendor._id}>
                                 <td>{vendor.vendorName}</td>
                                 <td>{vendor.userName}</td>
                                 <td>{vendor.email}</td>
                                 <td>{vendor.guests}</td>
                                 <td>{new Date(vendor.date).toLocaleDateString()}</td>
                                 <td>
-                                    <Button variant="warning" size="sm" onClick={() => handleVendorEdit(index)}>Edit</Button>{' '}
-                                    <Button variant="danger" size="sm" onClick={() => { setEditingVendorIndex(index); setShowVendorDeleteModal(true); }}>Delete</Button>
+                                    <Button variant="warning" size="sm" onClick={() => handleVendorEdit(vendor)}>Edit</Button>{' '}
+                                    <Button variant="danger" size="sm" onClick={() => { setEditingVendor(vendor); setShowVendorDeleteModal(true); }}>Delete</Button>
                                 </td>
                             </tr>
                         ))}
@@ -256,8 +221,8 @@ const UserAccount = () => {
                             <Form.Label>Event Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.eventName}
-                                onChange={(e) => setEditEventData({ ...editEventData, eventName: e.target.value })}
+                                value={editingEvent?.name || ''}
+                                onChange={(e) => setEditingEvent({ ...editingEvent, name: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -265,8 +230,8 @@ const UserAccount = () => {
                             <Form.Label>Your Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.userName}
-                                onChange={(e) => setEditEventData({ ...editEventData, userName: e.target.value })}
+                                value={editingEvent?.userName || user.name}
+                                onChange={(e) => setEditingEvent({ ...editingEvent, userName: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -274,8 +239,8 @@ const UserAccount = () => {
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="email"
-                                value={editEventData.email}
-                                onChange={(e) => setEditEventData({ ...editEventData, email: e.target.value })}
+                                value={editingEvent?.email || ''}
+                                onChange={(e) => setEditingEvent({ ...editingEvent, email: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -283,8 +248,8 @@ const UserAccount = () => {
                             <Form.Label>Number of Guests</Form.Label>
                             <Form.Control
                                 type="number"
-                                value={editEventData.guests}
-                                onChange={(e) => setEditEventData({ ...editEventData, guests: e.target.value })}
+                                value={editingEvent?.guests || ''}
+                                onChange={(e) => setEditingEvent({ ...editingEvent, guests: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -292,8 +257,8 @@ const UserAccount = () => {
                             <Form.Label>Date</Form.Label>
                             <Form.Control
                                 type="date"
-                                value={editEventData.date}
-                                onChange={(e) => setEditEventData({ ...editEventData, date: e.target.value })}
+                                value={editingEvent?.date ? new Date(editingEvent.date).toISOString().split('T')[0] : ''}
+                                onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -315,8 +280,8 @@ const UserAccount = () => {
                             <Form.Label>Vendor Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editVendorData.vendorName}
-                                onChange={(e) => setEditVendorData({ ...editVendorData, vendorName: e.target.value })}
+                                value={editingVendor?.vendorName || ''}
+                                onChange={(e) => setEditingVendor({ ...editingVendor, vendorName: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -324,8 +289,8 @@ const UserAccount = () => {
                             <Form.Label>Your Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editVendorData.userName}
-                                onChange={(e) => setEditVendorData({ ...editVendorData, userName: e.target.value })}
+                                value={editingVendor?.userName || user.name}
+                                onChange={(e) => setEditingVendor({ ...editingVendor, userName: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -333,8 +298,8 @@ const UserAccount = () => {
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="email"
-                                value={editVendorData.email}
-                                onChange={(e) => setEditVendorData({ ...editVendorData, email: e.target.value })}
+                                value={editingVendor?.email || ''}
+                                onChange={(e) => setEditingVendor({ ...editingVendor, email: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -342,8 +307,8 @@ const UserAccount = () => {
                             <Form.Label>Number of Guests</Form.Label>
                             <Form.Control
                                 type="number"
-                                value={editVendorData.guests}
-                                onChange={(e) => setEditVendorData({ ...editVendorData, guests: e.target.value })}
+                                value={editingVendor?.guests || ''}
+                                onChange={(e) => setEditingVendor({ ...editingVendor, guests: e.target.value })}
                                 required
                             />
                         </Form.Group>
@@ -351,8 +316,8 @@ const UserAccount = () => {
                             <Form.Label>Date</Form.Label>
                             <Form.Control
                                 type="date"
-                                value={editVendorData.date}
-                                onChange={(e) => setEditVendorData({ ...editVendorData, date: e.target.value })}
+                                value={editingVendor?.date ? new Date(editingVendor.date).toISOString().split('T')[0] : ''}
+                                onChange={(e) => setEditingVendor({ ...editingVendor, date: e.target.value })}
                                 required
                             />
                         </Form.Group>
