@@ -8,7 +8,7 @@ import { AppContext } from '../context/AppContext';
 
 const VendorDetails = () => {
     const { id } = useParams();
-    const { user, addVendorBooking } = useContext(AppContext);
+    const { user } = useContext(AppContext);
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -25,7 +25,6 @@ const VendorDetails = () => {
                     setErrorMessage('Vendor data format is incorrect');
                 }
             } catch (error) {
-                console.error('Error fetching vendor:', error);
                 setErrorMessage('Vendor not found.');
             }
             setLoading(false);
@@ -101,7 +100,6 @@ const VendorDetails = () => {
                                             setErrorMessage('Error booking vendor. Please try again.');
                                         }
                                     } catch (error) {
-                                        console.error('Error booking vendor:', error);
                                         setErrorMessage('Error booking vendor. Please try again.');
                                     }
                                 }}
