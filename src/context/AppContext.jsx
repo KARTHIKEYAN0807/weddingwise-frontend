@@ -57,8 +57,9 @@ export const AppProvider = ({ children }) => {
                 axios.get(`${API_BASE_URL}/api/events/bookings`),
                 axios.get(`${API_BASE_URL}/api/vendors/bookings`),
             ]);
-            setBookedEvents(eventResponse.data.bookedEvents || []); // Handle potential undefined responses
-            setBookedVendors(vendorResponse.data.bookedVendors || []);
+
+            setBookedEvents(eventResponse?.data?.bookedEvents || []); // Safely access data
+            setBookedVendors(vendorResponse?.data?.bookedVendors || []); // Safely access data
         } catch (error) {
             console.error('Error fetching bookings:', error.response?.data || error.message);
             alert('Failed to fetch bookings. Please try again later.');
@@ -75,7 +76,7 @@ export const AppProvider = ({ children }) => {
 
         try {
             const response = await axios.post(`${API_BASE_URL}/api/events/book`, booking);
-            setBookedEvents((prev) => [...prev, response.data.data]);
+            setBookedEvents((prev) => [...prev, response?.data?.data]);
         } catch (error) {
             console.error('Error booking event:', error.response?.data || error.message);
             alert('Error booking event. Please try again.');
@@ -90,7 +91,7 @@ export const AppProvider = ({ children }) => {
 
         try {
             const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, booking);
-            setBookedVendors((prev) => [...prev, response.data.data]);
+            setBookedVendors((prev) => [...prev, response?.data?.data]);
         } catch (error) {
             console.error('Error booking vendor:', error.response?.data || error.message);
             alert('Error booking vendor. Please try again.');
@@ -128,7 +129,7 @@ export const AppProvider = ({ children }) => {
         try {
             const response = await axios.put(`${API_BASE_URL}/api/events/bookings/${eventId}`, updatedBooking);
             setBookedEvents((prev) =>
-                prev.map((event) => (event._id === eventId ? response.data.data : event))
+                prev.map((event) => (event._id === eventId ? response?.data?.data : event))
             );
         } catch (error) {
             console.error('Error updating booking:', error.message || error.response?.data);
@@ -143,7 +144,7 @@ export const AppProvider = ({ children }) => {
         try {
             const response = await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, updatedBooking);
             setBookedVendors((prev) =>
-                prev.map((vendor) => (vendor._id === vendorId ? response.data.data : vendor))
+                prev.map((vendor) => (vendor._id === vendorId ? response?.data?.data : vendor))
             );
         } catch (error) {
             console.error('Error updating vendor booking:', error.message || error.response?.data);
