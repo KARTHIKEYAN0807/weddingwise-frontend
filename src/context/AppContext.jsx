@@ -21,21 +21,19 @@ export const AppProvider = ({ children }) => {
 
     const navigate = useNavigate();
 
-    // Store dark mode setting in localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_DARK_MODE, darkMode);
     }, [darkMode]);
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
-    // Log in user and store data in local storage
     const loginUser = (userData, token) => {
         if (token) {
             setUser(userData);
             localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(userData));
             localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            fetchBookedData(); // Fetch both event and vendor bookings after login
+            fetchBookedData();
         } else {
             console.error('Invalid token');
         }
@@ -51,7 +49,6 @@ export const AppProvider = ({ children }) => {
         navigate('/login');
     };
 
-    // Refresh token function to handle expired tokens
     const refreshAuthToken = async () => {
         try {
             const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
@@ -69,7 +66,6 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Fetch booked events and vendors concurrently from the database
     const fetchBookedData = async () => {
         try {
             setLoading(true);
@@ -86,10 +82,9 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Add new event booking (immediately store in database)
     const addEventBooking = async (booking) => {
-        if (!booking.eventTitle) {
-            alert('Event title is required.');
+        if (!booking.eventName) {
+            alert('Event name is required.');
             return;
         }
 
@@ -103,7 +98,6 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Add new vendor booking (immediately store in database)
     const addVendorBooking = async (booking) => {
         if (!booking.vendorName || !booking.name || !booking.email || !booking.date) {
             alert('All fields are required for vendor booking.');
@@ -120,11 +114,10 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Delete event booking
     const deleteEventBooking = async (eventId) => {
         setLoading(true);
         try {
-            await axios.delete(`${API_BASE_URL}/api/events/${eventId}`);
+            await axios.delete(`${API_BASE_URL}/api/events/bookings/${eventId}`);
             setBookedEvents(bookedEvents.filter((event) => event._id !== eventId));
         } catch (error) {
             console.error('Error deleting booking:', error.message || error.response?.data);
@@ -134,7 +127,6 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Delete vendor booking
     const deleteVendorBooking = async (vendorId) => {
         setLoading(true);
         try {
@@ -148,11 +140,10 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Update event booking
     const updateEventBooking = async (eventId, updatedBooking) => {
         setLoading(true);
         try {
-            await axios.put(`${API_BASE_URL}/api/events/${eventId}`, updatedBooking);
+            await axios.put(`${API_BASE_URL}/api/events/bookings/${eventId}`, updatedBooking);
             const updatedEvents = bookedEvents.map((event) =>
                 event._id === eventId ? { ...event, ...updatedBooking } : event
             );
@@ -165,7 +156,6 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Update vendor booking
     const updateVendorBooking = async (vendorId, updatedBooking) => {
         setLoading(true);
         try {
@@ -182,7 +172,6 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Confirm bookings (sends email and clears local storage)
     const confirmBookings = async () => {
         setLoading(true);
         try {
@@ -203,7 +192,6 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    // Load user and bookings from local storage on component mount
     useEffect(() => {
         const storedUser = localStorage.getItem(LOCAL_STORAGE_USER);
         const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
@@ -213,13 +201,13 @@ export const AppProvider = ({ children }) => {
                 const parsedUser = JSON.parse(storedUser);
                 setUser(parsedUser);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                fetchBookedData(); // Fetch event and vendor bookings after login
+                fetchBookedData();
             } catch (error) {
                 console.error('Error parsing stored user:', error);
                 logoutUser();
             }
         } else {
-            setLoading(false); // Stop loading if no user is found
+            setLoading(false);
         }
     }, []);
 

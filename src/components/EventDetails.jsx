@@ -90,6 +90,7 @@ const EventDetails = () => {
                                             email: values.email,
                                             date: values.date,
                                             guests: values.guests,
+                                            userId: user?._id // Include user ID here
                                         });
 
                                         if (bookingResponse.status === 201) {
@@ -103,6 +104,9 @@ const EventDetails = () => {
                                         }
                                     } catch (error) {
                                         console.error('Error booking event:', error);
+                                        if (error.response) {
+                                            console.error('Server response:', error.response.data);
+                                        }
                                         setErrorMessage('Error booking event. Please try again.');
                                     }
                                 }}

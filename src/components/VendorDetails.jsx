@@ -25,6 +25,7 @@ const VendorDetails = () => {
                     setErrorMessage('Vendor data format is incorrect');
                 }
             } catch (error) {
+                console.error('Error fetching vendor:', error);
                 setErrorMessage('Vendor not found.');
             }
             setLoading(false);
@@ -88,6 +89,7 @@ const VendorDetails = () => {
                                             email: values.email,
                                             date: values.date,
                                             guests: values.guests,
+                                            userId: user?._id // Include user ID here
                                         });
 
                                         if (bookingResponse.status === 201) {
@@ -100,6 +102,10 @@ const VendorDetails = () => {
                                             setErrorMessage('Error booking vendor. Please try again.');
                                         }
                                     } catch (error) {
+                                        console.error('Error booking vendor:', error);
+                                        if (error.response) {
+                                            console.error('Server response:', error.response.data);
+                                        }
                                         setErrorMessage('Error booking vendor. Please try again.');
                                     }
                                 }}

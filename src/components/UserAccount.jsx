@@ -70,7 +70,7 @@ const UserAccount = () => {
       const { eventId, eventName, userName, email, guests, date } = editEventData;
 
       if (!eventId || !eventName || !userName || !email || !guests || !date) {
-        setError('All fields, including the event name, user name, email, guests, and date, are required.');
+        setError('All fields are required.');
         return;
       }
 
@@ -79,14 +79,7 @@ const UserAccount = () => {
         return;
       }
 
-      const updatedData = {
-        eventId,
-        eventName,
-        userName,
-        email,
-        guests: parseInt(guests, 10),
-        date
-      };
+      const updatedData = { eventId, eventName, userName, email, guests: parseInt(guests, 10), date };
 
       await updateEventBooking(editingEventIndex, updatedData);
       setShowEventModal(false);
@@ -103,7 +96,7 @@ const UserAccount = () => {
       const { vendorName, userName, email, date, guests } = editVendorData;
 
       if (!vendorName || !userName || !email || !date || !guests) {
-        setError('All fields are required for the vendor, including the number of guests and booking date.');
+        setError('All fields are required for the vendor.');
         return;
       }
 
@@ -232,14 +225,6 @@ const UserAccount = () => {
           </tbody>
         </Table>
       )}
-
-      <Button variant="success" onClick={() => confirmBookings()} className="mt-3" disabled={loading}>
-        {loading ? (
-          <Spinner animation="border" size="sm" />
-        ) : (
-          'Confirm Bookings'
-        )}
-      </Button>
 
       <Modal show={showEventModal} onHide={handleCloseEventModal}>
         <Modal.Header closeButton>
