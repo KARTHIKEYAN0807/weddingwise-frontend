@@ -91,7 +91,7 @@ export const AppProvider = ({ children }) => {
     }, []);
 
     const addEventBooking = (booking) => {
-        if (!booking.eventTitle) {
+        if (!booking.title) {
             alert('Event title is required.');
             return;
         }
@@ -149,7 +149,7 @@ export const AppProvider = ({ children }) => {
             let event = bookedEvents[index];
             let eventId = event._id;
 
-            if (!updatedBooking.eventTitle) {
+            if (!updatedBooking.title) {
                 alert('Event title is required.');
                 setLoading(false);
                 return;
@@ -253,6 +253,7 @@ export const AppProvider = ({ children }) => {
                 vendor._id = response.data._id;
             }
 
+            // Confirm bookings for events and vendors
             const response = await axios.post(`${API_BASE_URL}/api/bookings/confirm-booking`, {
                 bookedEvents,
                 bookedVendors,
