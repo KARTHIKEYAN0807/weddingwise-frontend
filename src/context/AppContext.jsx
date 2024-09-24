@@ -7,23 +7,23 @@ export const AppContext = createContext();
 
 const API_BASE_URL = 'https://weddingwisebooking.onrender.com';
 
-// Constants for localStorage keys
-const LOCAL_STORAGE_USER = 'currentUser';
-const LOCAL_STORAGE_TOKEN = 'authToken';
-const LOCAL_STORAGE_DARK_MODE = 'darkMode';
-
 export const AppProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [bookedEvents, setBookedEvents] = useState([]);
     const [bookedVendors, setBookedVendors] = useState([]);
-    const [darkMode, setDarkMode] = useState(() => localStorage.getItem(LOCAL_STORAGE_DARK_MODE) === 'true');
+
+    // Cart states to temporarily hold event/vendor bookings before confirmation
+    const [cartEvents, setCartEvents] = useState([]);
+    const [cartVendors, setCartVendors] = useState([]);
+
+    const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
 
     // Save dark mode preference in localStorage when it changes
     useEffect(() => {
-        localStorage.setItem(LOCAL_STORAGE_DARK_MODE, darkMode);
+        localStorage.setItem('darkMode', darkMode);
     }, [darkMode]);
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
@@ -31,8 +31,8 @@ export const AppProvider = ({ children }) => {
     const loginUser = (userData, token) => {
         if (token) {
             setUser(userData);
-            localStorage.setItem(LOCAL_STORAGE_USER, JSON.stringify(userData));
-            localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            localStorage.setItem('authToken', token);
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             fetchBookedData(); // Fetch bookings after login
         } else {
@@ -44,8 +44,8 @@ export const AppProvider = ({ children }) => {
         setUser(null);
         setBookedEvents([]);
         setBookedVendors([]);
-        localStorage.removeItem(LOCAL_STORAGE_USER);
-        localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('authToken');
         delete axios.defaults.headers.common['Authorization'];
         navigate('/login');
     };
@@ -58,8 +58,8 @@ export const AppProvider = ({ children }) => {
                 axios.get(`${API_BASE_URL}/api/vendors/bookings`),
             ]);
 
-            setBookedEvents(eventResponse?.data?.bookedEvents || []); // Safely access data
-            setBookedVendors(vendorResponse?.data?.bookedVendors || []); // Safely access data
+            setBookedEvents(eventResponse?.data?.bookedEvents || []);
+            setBookedVendors(vendorResponse?.data?.bookedVendors || []);
         } catch (error) {
             console.error('Error fetching bookings:', error.response?.data || error.message);
             alert('Failed to fetch bookings. Please try again later.');
@@ -68,96 +68,86 @@ export const AppProvider = ({ children }) => {
         }
     };
 
-    const addEventBooking = async (booking) => {
-        if (!booking.eventName) {
-            alert('Event name is required.');
-            return;
-        }
-
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/events/book`, booking);
-            setBookedEvents((prev) => [...prev, response?.data?.data]);
-        } catch (error) {
-            console.error('Error booking event:', error.response?.data || error.message);
-            alert('Error booking event. Please try again.');
+    // Add event/vendor to cart (not directly to booked data)
+    const addToCart = (item, type) => {
+        if (type === 'event') {
+            setCartEvents((prev) => [...prev, item]);
+        } else if (type === 'vendor') {
+            setCartVendors((prev) => [...prev, item]);
         }
     };
 
-    const addVendorBooking = async (booking) => {
-        if (!booking.vendorName || !booking.name || !booking.email || !booking.date) {
-            alert('All fields are required for vendor booking.');
-            return;
-        }
-
-        try {
-            const response = await axios.post(`${API_BASE_URL}/api/vendors/book`, booking);
-            setBookedVendors((prev) => [...prev, response?.data?.data]);
-        } catch (error) {
-            console.error('Error booking vendor:', error.response?.data || error.message);
-            alert('Error booking vendor. Please try again.');
+    // Remove event/vendor from cart
+    const removeFromCart = (id, type) => {
+        if (type === 'event') {
+            setCartEvents((prev) => prev.filter((event) => event._id !== id));
+        } else if (type === 'vendor') {
+            setCartVendors((prev) => prev.filter((vendor) => vendor._id !== id));
         }
     };
 
-    const deleteEventBooking = async (eventId) => {
+    // Confirm bookings from cart and save to database
+    const confirmBookings = async () => {
         setLoading(true);
         try {
-            await axios.delete(`${API_BASE_URL}/api/events/bookings/${eventId}`);
-            setBookedEvents((prev) => prev.filter((event) => event._id !== eventId));
-        } catch (error) {
-            console.error('Error deleting event booking:', error.message || error.response?.data);
-            alert('Error deleting booking. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
+            const token = localStorage.getItem('authToken');
 
-    const deleteVendorBooking = async (vendorId) => {
-        setLoading(true);
-        try {
-            await axios.delete(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`);
-            setBookedVendors((prev) => prev.filter((vendor) => vendor._id !== vendorId));
-        } catch (error) {
-            console.error('Error deleting vendor booking:', error.message || error.response?.data);
-            alert('Error deleting vendor booking. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const updateEventBooking = async (eventId, updatedBooking) => {
-        setLoading(true);
-        try {
-            const response = await axios.put(`${API_BASE_URL}/api/events/bookings/${eventId}`, updatedBooking);
-            setBookedEvents((prev) =>
-                prev.map((event) => (event._id === eventId ? response?.data?.data : event))
+            const bookingResponse = await axios.post(
+                `${API_BASE_URL}/api/bookings/confirm-booking`,
+                {
+                    bookedEvents: cartEvents,
+                    bookedVendors: cartVendors,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
+
+            if (bookingResponse.data.success) {
+                setBookedEvents((prev) => [...prev, ...cartEvents]);
+                setBookedVendors((prev) => [...prev, ...cartVendors]);
+
+                // Clear cart after successful booking
+                setCartEvents([]);
+                setCartVendors([]);
+                navigate('/booking-confirmation');
+            } else {
+                alert('Failed to confirm bookings.');
+            }
         } catch (error) {
-            console.error('Error updating booking:', error.message || error.response?.data);
-            alert('Error updating booking. Please try again.');
+            console.error('Error confirming bookings:', error.response?.data || error.message);
+            alert('Error confirming bookings.');
         } finally {
             setLoading(false);
         }
     };
 
-    const updateVendorBooking = async (vendorId, updatedBooking) => {
-        setLoading(true);
-        try {
-            const response = await axios.put(`${API_BASE_URL}/api/vendors/bookings/${vendorId}`, updatedBooking);
-            setBookedVendors((prev) =>
-                prev.map((vendor) => (vendor._id === vendorId ? response?.data?.data : vendor))
-            );
-        } catch (error) {
-            console.error('Error updating vendor booking:', error.message || error.response?.data);
-            alert('Error updating vendor booking. Please try again.');
-        } finally {
-            setLoading(false);
-        }
+    const deleteEventBooking = (eventId) => {
+        setBookedEvents((prev) => prev.filter((event) => event._id !== eventId));
+    };
+
+    const deleteVendorBooking = (vendorId) => {
+        setBookedVendors((prev) => prev.filter((vendor) => vendor._id !== vendorId));
+    };
+
+    const updateEventBooking = (eventId, updatedBooking) => {
+        setBookedEvents((prev) =>
+            prev.map((event) => (event._id === eventId ? updatedBooking : event))
+        );
+    };
+
+    const updateVendorBooking = (vendorId, updatedBooking) => {
+        setBookedVendors((prev) =>
+            prev.map((vendor) => (vendor._id === vendorId ? updatedBooking : vendor))
+        );
     };
 
     // Fetch user data and token from local storage and authenticate on mount
     useEffect(() => {
-        const storedUser = localStorage.getItem(LOCAL_STORAGE_USER);
-        const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
+        const storedUser = localStorage.getItem('currentUser');
+        const token = localStorage.getItem('authToken');
 
         if (storedUser && token) {
             try {
@@ -173,9 +163,8 @@ export const AppProvider = ({ children }) => {
             setLoading(false);
         }
 
-        // Cleanup function (optional)
         return () => {
-            setLoading(false); // In case of unmount
+            setLoading(false); // Cleanup
         };
     }, []);
 
@@ -189,8 +178,11 @@ export const AppProvider = ({ children }) => {
                 user,
                 bookedEvents,
                 bookedVendors,
-                addEventBooking,
-                addVendorBooking,
+                cartEvents,
+                cartVendors,
+                addToCart,
+                removeFromCart,
+                confirmBookings,
                 deleteEventBooking,
                 updateEventBooking,
                 deleteVendorBooking,

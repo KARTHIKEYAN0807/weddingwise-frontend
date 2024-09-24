@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Card, Container, Row, Col, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
@@ -37,10 +37,14 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  // Ensure events is an array before filtering
-  const filteredEvents = Array.isArray(events) 
-    ? events.filter((event) => (event.name || '').toLowerCase().includes(searchTerm.toLowerCase()))
-    : [];
+  // UseMemo to optimize filtering
+  const filteredEvents = useMemo(() => {
+    return Array.isArray(events)
+      ? events.filter((event) =>
+          (event.name || '').toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : [];
+  }, [events, searchTerm]);
 
   const handleBookEvent = (event) => {
     if (user) {
@@ -84,11 +88,12 @@ const Events = () => {
               <Card>
                 <Card.Img
                   variant="top"
-                  src={event.img || '/images/default-event.jpg'}
-                  alt={event.name}
+                  src={event.img && event.img.startsWith('http') ? event.img : '/images/default-event.jpg'}
+                  alt={event.name || 'Event Image'}
+                  onError={(e) => e.target.src = '/images/default-event.jpg'} // Fallback in case the image is broken
                 />
                 <Card.Body>
-                  <Card.Title>{event.name}</Card.Title>
+                  <Card.Title>{event.name || 'Untitled Event'}</Card.Title>
                   <Card.Text>{event.description || 'No description provided.'}</Card.Text>
                   <Button variant="primary" onClick={() => handleBookEvent(event)}>
                     Book Now

@@ -8,13 +8,11 @@ import { AppContext } from '../context/AppContext';
 
 const EventDetails = () => {
     const { id } = useParams(); // id from the URL (eventId)
-    const { user } = useContext(AppContext); // User details from context
+    const { user, addToCart } = useContext(AppContext); // Use addToCart from context
     const navigate = useNavigate();
 
-    const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
     const [event, setEvent] = useState(null);
 
     // Fetch event details based on the event ID
@@ -39,7 +37,6 @@ const EventDetails = () => {
 
     // Define validation schema using Yup
     const BookingSchema = Yup.object().shape({
-        eventName: Yup.string().required('Event name is required'),
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date()
@@ -50,7 +47,7 @@ const EventDetails = () => {
             .required('Number of guests is required'),
     });
 
-    // Handle form submission to book the event
+    // Handle form submission to add event to cart
     return (
         <Container className="animate__animated animate__fadeIn mt-5">
             {loading ? (
@@ -67,12 +64,7 @@ const EventDetails = () => {
                                 <img src={event.img} alt={event.name} className="img-fluid mb-4" />
                             )}
                             <p>{event.description}</p>
-                            <h4>Book This Event</h4>
-                            {showSuccess && (
-                                <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                                    Event booked successfully! Redirecting to your account...
-                                </Alert>
-                            )}
+                            <h4>Add to Cart</h4>
                             {errorMessage && (
                                 <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
                                     {errorMessage}
@@ -80,69 +72,37 @@ const EventDetails = () => {
                             )}
                             <Formik
                                 initialValues={{
-                                    eventName: event.name || 'Untitled Event',
                                     userName: user?.name || '',
                                     email: user?.email || '',
                                     date: '',
                                     guests: ''
                                 }}
                                 validationSchema={BookingSchema}
-                                onSubmit={async (values, { resetForm }) => {
-                                    setSubmitting(true);
+                                onSubmit={(values, { resetForm }) => {
                                     try {
-                                        // Retrieve the token from localStorage
-                                        const token = localStorage.getItem('authToken');
-                                        if (!token) {
-                                            throw new Error('Authentication token is missing.');
-                                        }
-                                        console.log('Token:', token); // Log the token for debugging
+                                        // Add event booking to the cart
+                                        addToCart({
+                                            eventId: id,
+                                            eventName: event.name,
+                                            userName: values.userName,
+                                            email: values.email,
+                                            date: values.date,
+                                            guests: values.guests
+                                        });
 
-                                        const bookingUrl = 'https://weddingwisebooking.onrender.com/api/events/book';
-                                        console.log('Booking URL:', bookingUrl);
-
-                                        const bookingResponse = await axios.post(
-                                            bookingUrl,
-                                            {
-                                                eventId: id,
-                                                eventName: values.eventName,
-                                                name: values.userName,
-                                                email: values.email,
-                                                date: values.date,
-                                                guests: values.guests,
-                                                userId: user?._id, // Include user ID
-                                            },
-                                            {
-                                                headers: {
-                                                    Authorization: `Bearer ${token}`, // Pass the token in headers
-                                                },
-                                            }
-                                        );
-
-                                        if (bookingResponse.status === 201) {
-                                            setShowSuccess(true);
-                                            setTimeout(() => {
-                                                navigate('/user-account');
-                                            }, 2000);
-                                            resetForm();
-                                        } else {
-                                            setErrorMessage('Error booking event. Please try again.');
-                                        }
+                                        resetForm();
+                                        navigate('/user-account'); // Redirect to user account to view cart
                                     } catch (error) {
-                                        console.error('Error booking event:', error);
-                                        if (error.response) {
-                                            console.error('Server response:', error.response.data);
-                                        }
-                                        setErrorMessage(error.message || 'Error booking event. Please try again.');
+                                        console.error('Error adding to cart:', error);
+                                        setErrorMessage('Error adding event to cart. Please try again.');
                                     }
-                                    setSubmitting(false);
                                 }}
                             >
                                 {({ handleSubmit }) => (
                                     <Form onSubmit={handleSubmit}>
                                         <div className="form-group">
                                             <label>Event Name</label>
-                                            <Field name="eventName" type="text" className="form-control" disabled />
-                                            <ErrorMessage name="eventName" component="div" className="text-danger" />
+                                            <Field name="eventName" type="text" className="form-control" disabled value={event.name} />
                                         </div>
                                         <div className="form-group">
                                             <label>Your Name</label>
@@ -164,8 +124,8 @@ const EventDetails = () => {
                                             <Field name="guests" type="number" className="form-control" />
                                             <ErrorMessage name="guests" component="div" className="text-danger" />
                                         </div>
-                                        <Button variant="primary" type="submit" className="w-100" disabled={submitting}>
-                                            {submitting ? 'Booking...' : 'Book Now'}
+                                        <Button variant="primary" type="submit" className="w-100">
+                                            Add to Cart
                                         </Button>
                                     </Form>
                                 )}

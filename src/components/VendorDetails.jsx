@@ -7,8 +7,8 @@ import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 
 const VendorDetails = () => {
-    const { id } = useParams();
-    const { user } = useContext(AppContext);
+    const { id } = useParams(); // Get vendor ID from URL params
+    const { user, addToCart } = useContext(AppContext); // Access addToCart from AppContext
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -35,7 +35,6 @@ const VendorDetails = () => {
     }, [id]);
 
     const BookingSchema = Yup.object().shape({
-        vendorName: Yup.string().required('Vendor name is required'),
         userName: Yup.string().required('Your name is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         date: Yup.date()
@@ -61,10 +60,10 @@ const VendorDetails = () => {
                                 <img src={vendor.img} alt={vendor.name} className="img-fluid mb-4" />
                             )}
                             <p>{vendor.description}</p>
-                            <h4>Book This Vendor</h4>
+                            <h4>Add to Cart</h4>
                             {showSuccess && (
                                 <Alert variant="success" onClose={() => setShowSuccess(false)} dismissible>
-                                    Vendor booked successfully! Redirecting to your account...
+                                    Vendor added to cart! Redirecting to your account...
                                 </Alert>
                             )}
                             {errorMessage && (
@@ -74,39 +73,32 @@ const VendorDetails = () => {
                             )}
                             <Formik
                                 initialValues={{
-                                    vendorName: vendor.name || 'Untitled Vendor',
                                     userName: user?.name || '',
                                     email: user?.email || '',
                                     date: '',
                                     guests: ''
                                 }}
                                 validationSchema={BookingSchema}
-                                onSubmit={async (values, { resetForm }) => {
+                                onSubmit={(values, { resetForm }) => {
                                     try {
-                                        const bookingResponse = await axios.post('https://weddingwisebooking.onrender.com/api/vendors/book', {
-                                            vendorName: values.vendorName,
-                                            name: values.userName,
+                                        // Add the vendor booking to the cart using addToCart from AppContext
+                                        addToCart({
+                                            vendorId: id,
+                                            vendorName: vendor.name,
+                                            userName: values.userName,
                                             email: values.email,
                                             date: values.date,
-                                            guests: values.guests,
-                                            userId: user?._id // Include user ID here
+                                            guests: values.guests
                                         });
 
-                                        if (bookingResponse.status === 201) {
-                                            setShowSuccess(true);
-                                            setTimeout(() => {
-                                                navigate('/user-account');
-                                            }, 2000);
-                                            resetForm();
-                                        } else {
-                                            setErrorMessage('Error booking vendor. Please try again.');
-                                        }
+                                        setShowSuccess(true);
+                                        resetForm();
+                                        setTimeout(() => {
+                                            navigate('/user-account'); // Redirect to user account to review cart
+                                        }, 2000);
                                     } catch (error) {
-                                        console.error('Error booking vendor:', error);
-                                        if (error.response) {
-                                            console.error('Server response:', error.response.data);
-                                        }
-                                        setErrorMessage('Error booking vendor. Please try again.');
+                                        console.error('Error adding vendor to cart:', error);
+                                        setErrorMessage('Error adding vendor to cart. Please try again.');
                                     }
                                 }}
                             >
@@ -114,8 +106,7 @@ const VendorDetails = () => {
                                     <Form onSubmit={handleSubmit}>
                                         <div className="form-group">
                                             <label>Vendor Name</label>
-                                            <Field name="vendorName" type="text" className="form-control" disabled />
-                                            <ErrorMessage name="vendorName" component="div" className="text-danger" />
+                                            <Field name="vendorName" type="text" className="form-control" disabled value={vendor.name} />
                                         </div>
                                         <div className="form-group">
                                             <label>Your Name</label>
@@ -138,7 +129,7 @@ const VendorDetails = () => {
                                             <ErrorMessage name="guests" component="div" className="text-danger" />
                                         </div>
                                         <Button variant="primary" type="submit" className="w-100">
-                                            Book Now
+                                            Add to Cart
                                         </Button>
                                     </Form>
                                 )}
