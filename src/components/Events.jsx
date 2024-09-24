@@ -6,29 +6,19 @@ import axios from 'axios';
 
 const Events = () => {
   const navigate = useNavigate();
-  const { user } = useContext(AppContext);
+  const { addToCart, user } = useContext(AppContext);
   const [searchTerm, setSearchTerm] = useState('');
-  const [events, setEvents] = useState([]); // Ensure events is initialized as an empty array
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true); 
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    // Fetch events from the backend
     const fetchEvents = async () => {
       try {
         const response = await axios.get('https://weddingwisebooking.onrender.com/api/events');
-        console.log('Fetched events:', response.data); // Log to see what data is received
-
-        // Check if the response has the correct structure and data
-        if (response.data && response.data.status === 'success') {
-          setEvents(response.data.data); // Access the "data" array
-        } else {
-          console.error('Unexpected data format:', response.data);
-          setErrorMessage('Invalid data format received from the server.');
-        }
+        setEvents(response.data.data);
       } catch (error) {
-        console.error('Error fetching events:', error);
-        setErrorMessage(error.response?.data?.msg || 'Failed to load events.');
+        setErrorMessage('Failed to load events.');
       } finally {
         setLoading(false); 
       }
@@ -37,21 +27,17 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  // UseMemo to optimize filtering
   const filteredEvents = useMemo(() => {
-    return Array.isArray(events)
-      ? events.filter((event) =>
-          (event.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : [];
+    return events.filter((event) =>
+      event.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [events, searchTerm]);
 
   const handleBookEvent = (event) => {
     if (user) {
-      console.log('Event ID being sent:', event._id); // Debugging log
-      navigate(`/events/${event._id}`);
+      addToCart(event, 'event');
     } else {
-      alert('Please log in or register to book an event.');
+      alert('Please log in to book an event.');
       navigate('/login');
     }
   };
@@ -88,15 +74,13 @@ const Events = () => {
               <Card>
                 <Card.Img
                   variant="top"
-                  src={event.img && event.img.startsWith('http') ? event.img : '/images/default-event.jpg'}
-                  alt={event.name || 'Event Image'}
-                  onError={(e) => e.target.src = '/images/default-event.jpg'} // Fallback in case the image is broken
+                  src={event.img ? event.img : '/images/default-event.jpg'}
+                  alt={event.name}
                 />
                 <Card.Body>
-                  <Card.Title>{event.name || 'Untitled Event'}</Card.Title>
-                  <Card.Text>{event.description || 'No description provided.'}</Card.Text>
+                  <Card.Title>{event.name}</Card.Title>
                   <Button variant="primary" onClick={() => handleBookEvent(event)}>
-                    Book Now
+                    Book
                   </Button>
                 </Card.Body>
               </Card>

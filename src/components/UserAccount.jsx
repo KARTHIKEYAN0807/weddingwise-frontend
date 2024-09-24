@@ -6,16 +6,15 @@ import { useNavigate } from 'react-router-dom';
 const UserAccount = () => {
   const {
     user,
-    saveBookingToDatabase,
-    sendConfirmationEmail,
-    loading,
+    confirmBookings,
+    cartEvents,
+    cartVendors,
+    removeFromCart,
+    updateEventBooking,
+    updateVendorBooking,
   } = useContext(AppContext);
 
   const navigate = useNavigate();
-
-  // Cart state to store events and vendors
-  const [cartEvents, setCartEvents] = useState([]);
-  const [cartVendors, setCartVendors] = useState([]);
 
   // State for editing events and vendors in the cart
   const [editingEventIndex, setEditingEventIndex] = useState(null);
@@ -23,7 +22,6 @@ const UserAccount = () => {
   const [showEventModal, setShowEventModal] = useState(false);
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [editEventData, setEditEventData] = useState({
-    eventId: '',
     eventName: '',
     guests: '',
     date: ''
@@ -35,16 +33,6 @@ const UserAccount = () => {
   });
   const [error, setError] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
-
-  // Adding event/vendor to cart
-  const addToCart = (item, type) => {
-    if (type === 'event') {
-      setCartEvents([...cartEvents, item]);
-    } else if (type === 'vendor') {
-      setCartVendors([...cartVendors, item]);
-    }
-    setFeedbackMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} added to cart.`);
-  };
 
   // Editing functionality for events/vendors in the cart
   const handleEdit = (index, type) => {
@@ -65,25 +53,15 @@ const UserAccount = () => {
     if (type === 'event') {
       const updatedEvents = [...cartEvents];
       updatedEvents[editingEventIndex] = editEventData;
-      setCartEvents(updatedEvents);
+      updateEventBooking(editingEventIndex, updatedEvents[editingEventIndex]);
       setShowEventModal(false);
     } else if (type === 'vendor') {
       const updatedVendors = [...cartVendors];
       updatedVendors[editingVendorIndex] = editVendorData;
-      setCartVendors(updatedVendors);
+      updateVendorBooking(editingVendorIndex, updatedVendors[editingVendorIndex]);
       setShowVendorModal(false);
     }
     setFeedbackMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} updated.`);
-  };
-
-  // Delete functionality for cart items
-  const handleDelete = (index, type) => {
-    if (type === 'event') {
-      setCartEvents(cartEvents.filter((_, i) => i !== index));
-    } else if (type === 'vendor') {
-      setCartVendors(cartVendors.filter((_, i) => i !== index));
-    }
-    setFeedbackMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} removed from cart.`);
   };
 
   // Confirm booking and save to database
@@ -94,35 +72,17 @@ const UserAccount = () => {
     }
 
     try {
-      // Save bookings to database
-      await saveBookingToDatabase({ events: cartEvents, vendors: cartVendors });
-      
-      // Send confirmation email
-      await sendConfirmationEmail(user.email, { events: cartEvents, vendors: cartVendors });
-      
-      // Clear cart and navigate to confirmation page
-      setCartEvents([]);
-      setCartVendors([]);
-      navigate('/bookingconfirmation');
+      await confirmBookings();
+      navigate('/booking-confirmation');
       setFeedbackMessage('Booking confirmed successfully!');
     } catch (error) {
       setError('Error confirming booking. Please try again.');
     }
   };
 
-  if (!user) {
-    return (
-      <Container className="mt-5">
-        <Alert variant="danger">
-          You need to be logged in to view your account. <a href="/login" className="alert-link">Login here</a>.
-        </Alert>
-      </Container>
-    );
-  }
-
   return (
     <Container className="mt-5">
-      <h1 className="text-center mb-4">Welcome, {user.name}</h1>
+      <h1 className="text-center mb-4">Welcome, {user?.name || 'User'}</h1>
 
       {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
       {feedbackMessage && <Alert variant="success" className="mt-3">{feedbackMessage}</Alert>}
@@ -148,7 +108,7 @@ const UserAccount = () => {
                 <td>{event.date}</td>
                 <td>
                   <Button variant="warning" size="sm" onClick={() => handleEdit(index, 'event')}>Edit</Button>{' '}
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(index, 'event')}>Delete</Button>
+                  <Button variant="danger" size="sm" onClick={() => removeFromCart(event._id, 'event')}>Delete</Button>
                 </td>
               </tr>
             ))}
@@ -177,7 +137,7 @@ const UserAccount = () => {
                 <td>{vendor.date}</td>
                 <td>
                   <Button variant="warning" size="sm" onClick={() => handleEdit(index, 'vendor')}>Edit</Button>{' '}
-                  <Button variant="danger" size="sm" onClick={() => handleDelete(index, 'vendor')}>Delete</Button>
+                  <Button variant="danger" size="sm" onClick={() => removeFromCart(vendor._id, 'vendor')}>Delete</Button>
                 </td>
               </tr>
             ))}
@@ -185,11 +145,11 @@ const UserAccount = () => {
         </Table>
       )}
 
-      {cartEvents.length > 0 || cartVendors.length > 0 ? (
+      {(cartEvents.length > 0 || cartVendors.length > 0) && (
         <Button variant="success" className="mt-4" onClick={confirmBooking}>
           Confirm Booking
         </Button>
-      ) : null}
+      )}
 
       {/* Event Edit Modal */}
       <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
