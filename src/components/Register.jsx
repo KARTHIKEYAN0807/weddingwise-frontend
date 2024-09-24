@@ -37,7 +37,7 @@ const Register = () => {
                             try {
                                 console.log('Registering with values:', values);
 
-                                const response = await axios.post('http://localhost:5000/api/users/register', {
+                                const response = await axios.post('https://weddingwisebooking.onrender.com/api/users/register', {
                                     name: values.name,
                                     email: values.email,
                                     password: values.password,

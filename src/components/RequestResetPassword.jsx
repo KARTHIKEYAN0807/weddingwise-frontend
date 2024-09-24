@@ -9,7 +9,7 @@ const RequestResetPassword = () => {
   const [loading, setLoading] = useState(false);
 
   // Directly set the API Base URL here
-  const API_BASE_URL = 'http://localhost:5000';
+  const API_BASE_URL = 'https://weddingwisebooking.onrender.com';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

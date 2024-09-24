@@ -18,7 +18,7 @@ const VendorDetails = () => {
     useEffect(() => {
         const fetchVendor = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/vendors/${id}`);
+                const response = await axios.get(`https://weddingwisebooking.onrender.com/api/vendors/${id}`);
                 setVendor(response.data);
             } catch (error) {
                 console.error('Error fetching vendor:', error);

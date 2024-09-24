@@ -34,7 +34,7 @@ const Login = () => {
                                     password: values.password.trim(),
                                 };
 
-                                const response = await axios.post('http://localhost:5000/api/users/login', trimmedValues, {
+                                const response = await axios.post('https://weddingwisebooking.onrender.com/api/users/login', trimmedValues, {
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
@@ -47,13 +47,10 @@ const Login = () => {
                                     navigate('/user-account');
                                     resetForm(); // Clear form fields after successful login
                                 } else {
-                                    console.error('Token is missing in the response');
                                     setLoginError('Login failed. Please try again.');
                                 }
                             } catch (error) {
-                                console.error('Login Error:', error);
                                 if (error.response && error.response.data) {
-                                    console.log('Server response:', error.response.data);
                                     setLoginError(error.response.data.msg || 'Invalid email or password');
                                 } else {
                                     setLoginError('Login failed. Please try again.');
