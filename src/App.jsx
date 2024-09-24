@@ -72,71 +72,15 @@ const AppContent = () => {
               <Route path="/reset-password-request" element={<RequestResetPassword />} />
               
               {/* Protected Routes - Accessible only after authentication */}
-              <Route 
-                path="/events" 
-                element={
-                  <ProtectedRoute>
-                    <Events />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/events/:id" 
-                element={
-                  <ProtectedRoute>
-                    <EventDetails />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/vendors" 
-                element={
-                  <ProtectedRoute>
-                    <Vendors />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/vendors/:id" 
-                element={
-                  <ProtectedRoute>
-                    <VendorDetails />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/budget" 
-                element={
-                  <ProtectedRoute>
-                    <Budget />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/user-account" 
-                element={
-                  <ProtectedRoute>
-                    <UserAccount />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/user-profile" 
-                element={
-                  <ProtectedRoute>
-                    <UserProfile />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/booking-confirmation" 
-                element={
-                  <ProtectedRoute>
-                    <BookingConfirmation />
-                  </ProtectedRoute>
-                } 
-              />
-
+              <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+              <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+              <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+              <Route path="/vendors/:id" element={<ProtectedRoute><VendorDetails /></ProtectedRoute>} />
+              <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
+              <Route path="/user-account" element={<ProtectedRoute><UserAccount /></ProtectedRoute>} />
+              <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+              <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
+              
               {/* Fallback Route for Not Found */}
               <Route path="*" element={<NotFound />} />
             </Routes>
