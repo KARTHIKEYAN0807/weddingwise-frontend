@@ -42,7 +42,7 @@ export const AppProvider = ({ children }) => {
         localStorage.removeItem('currentUser');
         localStorage.removeItem('authToken');
         delete axios.defaults.headers.common['Authorization'];
-        navigate('/login'); // Redirect to login on logout
+        // Redirect to login on logout
     };
 
     const refreshAuthToken = async () => {
