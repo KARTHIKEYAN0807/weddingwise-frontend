@@ -8,7 +8,7 @@ const UserAccount = () => {
     const [editingVendorIndex, setEditingVendorIndex] = useState(null);
     const [showEventModal, setShowEventModal] = useState(false);
     const [showVendorModal, setShowVendorModal] = useState(false);
-    const [editEventData, setEditEventData] = useState({ eventTitle: '', name: '', email: '', guests: '' });
+    const [editEventData, setEditEventData] = useState({ title: '', name: '', email: '', guests: '' });
     const [editVendorData, setEditVendorData] = useState({ vendorName: '', name: '', email: '', date: '' });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showVendorDeleteModal, setShowVendorDeleteModal] = useState(false);
@@ -30,7 +30,7 @@ const UserAccount = () => {
 
     const handleEventEdit = (index) => {
         setEditingEventIndex(index);
-        setEditEventData({ ...bookedEvents[index] });
+        setEditEventData({ ...bookedEvents[index], title: bookedEvents[index].title }); // Use 'title' instead of 'eventTitle'
         setShowEventModal(true);
     };
 
@@ -73,7 +73,7 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.eventTitle) {
+            if (!editEventData.title) {  // Ensure the validation checks for 'title'
                 setError('Event title is required.');
                 return;
             }
@@ -127,7 +127,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.eventTitle}</td>
+                                <td>{event.title}</td> {/* Use 'title' instead of 'eventTitle' */}
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -193,8 +193,8 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.eventTitle}
-                                onChange={(e) => setEditEventData({ ...editEventData, eventTitle: e.target.value })}
+                                value={editEventData.title}  // Use 'title' instead of 'eventTitle'
+                                onChange={(e) => setEditEventData({ ...editEventData, title: e.target.value })}  // Update field name to 'title'
                                 required
                             />
                         </Form.Group>
