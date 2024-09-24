@@ -1,4 +1,3 @@
-// src/components/EventDetails.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Row, Col, Alert } from 'react-bootstrap';
@@ -69,7 +68,7 @@ const EventDetails = () => {
                                         try {
                                             // Add event to user account (not confirming booking yet)
                                             addEventBooking({
-                                                eventTitle: event.title || 'Untitled Event', // Use eventTitle for consistency
+                                                title: event.title || 'Untitled Event', // Using correct field name
                                                 event: event._id, // Include the event ID
                                                 img: event.img || '', 
                                                 description: event.description || 'No description provided.',
