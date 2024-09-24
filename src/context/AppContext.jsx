@@ -240,7 +240,6 @@ export const AppProvider = ({ children }) => {
     const confirmBookings = async () => {
         setLoading(true);
         try {
-            // Refresh token before confirming bookings
             await refreshAuthToken();
             const token = localStorage.getItem('authToken');
             if (!token) {
@@ -253,23 +252,19 @@ export const AppProvider = ({ children }) => {
                 vendor._id = response.data._id;
             }
 
-            // Confirm bookings for events and vendors
             const response = await axios.post(`${API_BASE_URL}/api/bookings/confirm-booking`, {
                 bookedEvents,
                 bookedVendors,
             });
 
             if (response.status === 200) {
-                // Navigate to confirmation page
                 navigate('/booking-confirmation');
 
-                // Clear the local data
                 setBookedEvents([]);
                 setBookedVendors([]);
                 localStorage.removeItem('bookedEvents');
                 localStorage.removeItem('bookedVendors');
 
-                // Show success alert after navigating
                 setTimeout(() => {
                     alert('Booking confirmed and email sent!');
                 }, 500);
@@ -292,6 +287,9 @@ export const AppProvider = ({ children }) => {
         const token = localStorage.getItem('authToken');
         const storedBookedEvents = localStorage.getItem('bookedEvents');
         const storedBookedVendors = localStorage.getItem('bookedVendors');
+
+        console.log('User:', storedUser);  // Added console log for debugging
+        console.log('Token:', token);
 
         if (storedUser && storedUser !== "undefined" && token && token !== "undefined") {
             try {
@@ -333,7 +331,6 @@ export const AppProvider = ({ children }) => {
         }
     }, []);
 
-    // Show loading screen if loading is true
     if (loading) {
         return <LoadingScreen />;
     }
@@ -355,7 +352,7 @@ export const AppProvider = ({ children }) => {
                 loginUser,
                 logoutUser,
                 confirmBookings,
-                loading, // Pass loading state to the context
+                loading,
             }}
         >
             {children}
