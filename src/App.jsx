@@ -62,22 +62,26 @@ const AppContent = () => {
         <main className="flex-grow-1 mb-5">
           <Suspense fallback={<LoadingScreen />}>
             <Routes>
+              {/* Public Routes - Accessible without authentication */}
               <Route path="/" element={<Home />} />
-              <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
-              <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
-              <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
-              <Route path="/vendors/:id" element={<ProtectedRoute><VendorDetails /></ProtectedRoute>} />
-              <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/reset-password-request" element={<RequestResetPassword />} />
+              
+              {/* Protected Routes - Accessible only after authentication */}
+              <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+              <Route path="/events/:id" element={<ProtectedRoute><EventDetails /></ProtectedRoute>} />
+              <Route path="/vendors" element={<ProtectedRoute><Vendors /></ProtectedRoute>} />
+              <Route path="/vendors/:id" element={<ProtectedRoute><VendorDetails /></ProtectedRoute>} />
+              <Route path="/budget" element={<ProtectedRoute><Budget /></ProtectedRoute>} />
               <Route path="/user-account" element={<ProtectedRoute><UserAccount /></ProtectedRoute>} />
               <Route path="/user-profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
-              {/* Make sure this path matches the one used in navigate('/booking-confirmation') */}
               <Route path="/booking-confirmation" element={<ProtectedRoute><BookingConfirmation /></ProtectedRoute>} />
+              
+              {/* Fallback Route for Not Found */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
@@ -86,6 +90,6 @@ const AppContent = () => {
       </div>
     </div>
   );
-};  
+};
 
 export default App;
