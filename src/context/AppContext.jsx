@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import LoadingScreen from '../components/LoadingScreen'; // Import the loading screen component
+import LoadingScreen from '../components/LoadingScreen';
 
 // Create a context for the app
 export const AppContext = createContext();

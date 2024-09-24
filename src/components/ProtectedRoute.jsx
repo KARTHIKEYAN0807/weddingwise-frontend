@@ -1,23 +1,17 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { Container, Button } from 'react-bootstrap';
+import { Navigate } from 'react-router-dom';
 
+// This component will protect routes from being accessed without a logged-in user
 const ProtectedRoute = ({ children }) => {
     const { user } = useContext(AppContext);
-    const navigate = useNavigate();
 
-    // If the user is not logged in, show the register prompt
+    // If the user is not logged in, redirect to the login page
     if (!user) {
-        return (
-            <Container className="mt-5 text-center">
-                <h3>Please register to access this page.</h3>
-                <Button variant="primary" onClick={() => navigate('/register')} className="mt-3">Register</Button>
-            </Container>
-        );
+        return <Navigate to="/login" replace />;
     }
 
-    // If the user is logged in, render the children components
+    // If the user is logged in, render the children components (protected routes)
     return children;
 };
 
