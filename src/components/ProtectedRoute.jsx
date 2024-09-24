@@ -1,18 +1,24 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Navigate } from 'react-router-dom';
+import { Container, Button } from 'react-bootstrap';
 
-// This component will protect routes from being accessed without a logged-in user
 const ProtectedRoute = ({ children }) => {
-    const { user } = useContext(AppContext);
+  const { user } = useContext(AppContext);
 
-    // If the user is not logged in, redirect to the login page
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
+  // If the user is not logged in, show a message with a login button
+  if (!user) {
+    return (
+      <Container className="mt-5 text-center">
+        <h3>You need to be logged in to access this page.</h3>
+        <Button variant="primary" onClick={() => window.location.href = '/login'}>
+          Go to Login
+        </Button>
+      </Container>
+    );
+  }
 
-    // If the user is logged in, render the children components (protected routes)
-    return children;
+  // If the user is logged in, render the protected content
+  return children;
 };
 
 export default ProtectedRoute;
