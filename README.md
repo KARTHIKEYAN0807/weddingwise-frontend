@@ -5,9 +5,8 @@
 # **WeddingWise - Event Management App**
 
 **Frontend**: React.js, Bootstrap, CSS  
+
 **Backend**: Node.js, Express.js, MongoDB  
-**Hosted Frontend URL**: [https://weddingwisebooking.netlify.app](https://weddingwisebooking.netlify.app)  
-**Hosted Backend URL**: [https://weddingwisebooking.onrender.com](https://weddingwisebooking.onrender.com)
 
 ## **Table of Contents**
 - [Introduction](#introduction)
