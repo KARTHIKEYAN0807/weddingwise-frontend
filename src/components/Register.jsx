@@ -5,7 +5,6 @@ import axios from 'axios';
 import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-// Validation schema using Yup
 const RegisterSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
@@ -21,32 +20,24 @@ const RegisterSchema = Yup.object().shape({
 
 const Register = () => {
     const navigate = useNavigate();
-    const [serverError, setServerError] = React.useState(''); // To store server error
-    const [successMessage, setSuccessMessage] = React.useState(''); // To store success message
+    const [serverError, setServerError] = React.useState('');
 
     return (
         <Container className="animate__animated animate__fadeInUp mt-5">
             <Row className="justify-content-md-center">
                 <Col md={6}>
                     <h1 className="text-center mb-4">WeddingWise</h1>
-                    <img 
-                        src="/images/register_showcase.jpg" 
-                        alt="Wedding Showcase" 
-                        className="img-fluid mb-4 rounded" 
-                        style={{ maxHeight: '200px', objectFit: 'cover' }} 
-                    />
+                    <img src="/images/register_showcase.jpg" alt="Wedding Showcase" className="img-fluid mb-4" />
                     <h2 className="text-center">Register</h2>
-
                     <Formik
                         initialValues={{ name: '', email: '', password: '', confirmPassword: '' }}
                         validationSchema={RegisterSchema}
-                        onSubmit={async (values, { setSubmitting, resetForm }) => {
+                        onSubmit={async (values, { setSubmitting }) => {
                             setServerError(''); // Reset server error
-                            setSuccessMessage(''); // Reset success message
                             try {
                                 console.log('Registering with values:', values);
 
-                                const response = await axios.post('https://weddingwisebooking.onrender.com/api/users/register', {
+                                const response = await axios.post('http://localhost:5000/api/users/register', {
                                     name: values.name,
                                     email: values.email,
                                     password: values.password,
@@ -55,24 +46,18 @@ const Register = () => {
                                 console.log('Server response:', response);
 
                                 if (response.status === 201) {
-                                    // Show success message and redirect to login page
-                                    setSuccessMessage('Registration successful! Redirecting to login...');
-                                    resetForm(); // Clear the form fields
-                                    setTimeout(() => {
-                                        navigate('/login');
-                                    }, 2000);
+                                    navigate('/login');
                                 }
                             } catch (error) {
                                 console.error('Registration error:', error);
                                 if (error.response) {
-                                    // Handle server error response
+                                    // Display detailed error message from the server
                                     const errorData = error.response.data;
                                     console.log('Error response:', errorData);
                                     
-                                    // Display specific server error message if available
+                                    // Extract and show specific errors if present
                                     setServerError(errorData.msg || 'An error occurred during registration');
                                 } else {
-                                    // Fallback error message
                                     setServerError('An unexpected error occurred. Please try again.');
                                 }
                             }
@@ -81,50 +66,28 @@ const Register = () => {
                     >
                         {({ isSubmitting }) => (
                             <Form>
-                                {serverError && (
-                                    <Alert 
-                                        variant="danger" 
-                                        onClose={() => setServerError('')} 
-                                        dismissible
-                                    >
-                                        {serverError}
-                                    </Alert>
-                                )}
-                                {successMessage && (
-                                    <Alert 
-                                        variant="success" 
-                                        onClose={() => setSuccessMessage('')} 
-                                        dismissible
-                                    >
-                                        {successMessage}
-                                    </Alert>
-                                )}
+                                {serverError && <Alert variant="danger">{serverError}</Alert>}
                                 <div className="form-group">
-                                    <label htmlFor="name">Name</label>
+                                    <label>Name</label>
                                     <Field name="name" type="text" className="form-control" />
                                     <ErrorMessage name="name" component="div" className="text-danger" />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="email">Email</label>
+                                    <label>Email</label>
                                     <Field name="email" type="email" className="form-control" />
                                     <ErrorMessage name="email" component="div" className="text-danger" />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="password">Password</label>
+                                    <label>Password</label>
                                     <Field name="password" type="password" className="form-control" />
                                     <ErrorMessage name="password" component="div" className="text-danger" />
                                 </div>
                                 <div className="form-group">
-                                    <label htmlFor="confirmPassword">Confirm Password</label>
+                                    <label>Confirm Password</label>
                                     <Field name="confirmPassword" type="password" className="form-control" />
                                     <ErrorMessage name="confirmPassword" component="div" className="text-danger" />
                                 </div>
-                                <Button 
-                                    variant="primary" 
-                                    type="submit" 
-                                    className="w-100" 
-                                    disabled={isSubmitting}
-                                >
+                                <Button variant="primary" type="submit" className="w-100" disabled={isSubmitting}>
                                     {isSubmitting ? <Spinner animation="border" size="sm" /> : 'Register'}
                                 </Button>
                             </Form>

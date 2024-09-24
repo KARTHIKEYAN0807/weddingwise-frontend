@@ -18,7 +18,7 @@ const UserProfile = () => {
         e.preventDefault();
         try {
             // Make an API call to update the user profile
-            const response = await axios.put('https://weddingwisebooking.onrender.com/api/users/update-profile', formData, {
+            const response = await axios.put('http://localhost:5000/api/users/update-profile', formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`, // Include token in the request
                 },
