@@ -1,4 +1,3 @@
-// src/components/Events.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { Card, Container, Row, Col, Button, Form, Alert } from 'react-bootstrap';
 import { AppContext } from '../context/AppContext';
@@ -27,19 +26,21 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  // Use the correct field name from the backend (eventTitle if title is not available)
+  // Filter events by title (no more eventTitle fallback)
   const filteredEvents = events.filter(event =>
-    (event.title || event.eventTitle || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (event.title || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <Container className="animate__animated animate__fadeIn">
       <h2 className="text-center my-4">Events</h2>
+      
       {errorMessage && (
         <Alert variant="danger" className="text-center">
           {errorMessage}
         </Alert>
       )}
+
       <Form className="mb-4">
         <Form.Control
           type="text"
@@ -48,13 +49,18 @@ const Events = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </Form>
+
       <Row>
         {filteredEvents.map((event) => (
           <Col md={6} lg={4} key={event._id} className="mb-4">
             <Card>
-              <Card.Img variant="top" src={event.img} alt={event.title || event.eventTitle} />
+              <Card.Img 
+                variant="top" 
+                src={event.img || '/images/default-event.jpg'}  // Fallback image
+                alt={event.title}  // Use title exclusively
+              />
               <Card.Body>
-                <Card.Title>{event.title || event.eventTitle}</Card.Title>
+                <Card.Title>{event.title}</Card.Title>  {/* Use title exclusively */}
                 <Card.Text>{event.description || 'No description provided.'}</Card.Text>
                 <Button variant="primary" onClick={() => navigate(`/events/${event._id}`)}>Book Now</Button>
               </Card.Body>
@@ -62,6 +68,12 @@ const Events = () => {
           </Col>
         ))}
       </Row>
+
+      {filteredEvents.length === 0 && !errorMessage && (
+        <Alert variant="info" className="text-center">
+          No events match your search criteria.
+        </Alert>
+      )}
     </Container>
   );
 };
