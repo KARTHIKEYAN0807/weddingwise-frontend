@@ -30,7 +30,7 @@ const UserAccount = () => {
 
     const handleEventEdit = (index) => {
         setEditingEventIndex(index);
-        setEditEventData({ ...bookedEvents[index], title: bookedEvents[index].title }); // Use 'title' instead of 'eventTitle'
+        setEditEventData({ ...bookedEvents[index], title: bookedEvents[index].title });
         setShowEventModal(true);
     };
 
@@ -73,7 +73,7 @@ const UserAccount = () => {
     const handleSaveEventChanges = async (e) => {
         e.preventDefault();
         try {
-            if (!editEventData.title) {  // Ensure the validation checks for 'title'
+            if (!editEventData.title) {
                 setError('Event title is required.');
                 return;
             }
@@ -102,6 +102,21 @@ const UserAccount = () => {
         }
     };
 
+    const handleConfirmBookings = async () => {
+        if (bookedEvents.length === 0 && bookedVendors.length === 0) {
+            setError('You need to add at least one event or vendor before confirming the booking.');
+            return;
+        }
+        setError(''); // Clear any existing errors
+
+        try {
+            await confirmBookings(); // Call your confirmBookings function here
+            setFeedbackMessage('Bookings successfully confirmed.');
+        } catch (err) {
+            setError('Error confirming the booking. Please try again.');
+        }
+    };
+
     return (
         <Container className="animate__animated animate__fadeInUp mt-5">
             <h1 className="text-center mb-4">Welcome, {user.name}</h1>
@@ -127,7 +142,7 @@ const UserAccount = () => {
                     <tbody>
                         {bookedEvents.map((event, index) => (
                             <tr key={`event-${index}`}>
-                                <td>{event.title}</td> {/* Use 'title' instead of 'eventTitle' */}
+                                <td>{event.title}</td>
                                 <td>{event.name}</td>
                                 <td>{event.email}</td>
                                 <td>{event.guests}</td>
@@ -174,7 +189,12 @@ const UserAccount = () => {
             )}
 
             {/* Confirm Bookings Button */}
-            <Button variant="success" onClick={confirmBookings} className="mt-3" disabled={loading}>
+            <Button 
+              variant="success" 
+              onClick={handleConfirmBookings} 
+              className="mt-3" 
+              disabled={loading || (bookedEvents.length === 0 && bookedVendors.length === 0)}
+            >
                 {loading ? (
                     <Spinner animation="border" size="sm" />
                 ) : (
@@ -193,8 +213,8 @@ const UserAccount = () => {
                             <Form.Label>Event Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editEventData.title}  // Use 'title' instead of 'eventTitle'
-                                onChange={(e) => setEditEventData({ ...editEventData, title: e.target.value })}  // Update field name to 'title'
+                                value={editEventData.title}
+                                onChange={(e) => setEditEventData({ ...editEventData, title: e.target.value })}
                                 required
                             />
                         </Form.Group>
